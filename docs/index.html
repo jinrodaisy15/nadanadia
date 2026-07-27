@@ -1357,19 +1357,27 @@
     // Timeline — tambah / hapus / ubah item di sini!
     const TIMELINE_ITEMS = [
       {
-        date: '15 April 2026', icon: '💑', title: 'Awal Kisah Kita',
+        date: '15 April 2026',
+        icon: '💑',
+        title: 'Awal Kisah Kita',
         desc: 'Hari yang paling berkesan — hari di mana kita resmi menjadi sepasang kekasih. Terima kasih sudah mau menjadi bagian dari hidupku.'
       },
       {
-        date: 'Mei 2026', icon: '🌻', title: 'Kencan Pertama',
+        date: 'Mei 2026',
+        icon: '🌻',
+        title: 'Kencan Pertama',
         desc: 'Pergi bersama untuk pertama kali, tertawa, makan es krim, dan berjalan pelan menikmati hari yang sederhana tapi tak terlupakan.'
       },
       {
-        date: 'Juni 2026', icon: '🏔️', title: 'Petualangan Pertama',
+        date: 'Juni 2026',
+        icon: '🏔️',
+        title: 'Petualangan Pertama',
         desc: 'Akhirnya kita pergi adventure bersama! Mendaki, foto-foto, dan menikmati alam bersama-sama.'
       },
       {
-        date: 'Juli 2026', icon: '🎂', title: 'Ulang Tahun Bersamamu',
+        date: 'Juli 2026',
+        icon: '🎂',
+        title: 'Ulang Tahun Bersamamu',
         desc: 'Hari ulang tahun yang spesial karena ada kamu di sampingku. Setiap momen terasa lebih berharga.'
       },
       // ← Tambah momen baru di sini!
@@ -1438,7 +1446,6 @@
         const lbl = document.getElementById('ctLabel');
         if (!ct) return;
         let html = '';
-
         if (diff < 0) {
           if (lbl) lbl.textContent = 'Menuju Hari Spesial Kita...';
           const abs = Math.abs(diff);
@@ -1451,9 +1458,11 @@
           if (lbl) lbl.textContent = 'Kita telah bersama selama...';
           const ts = Math.floor(diff / 1000);
           const s = ts % 60;
-          const mi = Math.floor(ts / 60) % 60;
-          const h = Math.floor(ts / 3600) % 24;
-          const td = Math.floor(ts / 86400);
+          const tm = Math.floor(ts / 60);
+          const mi = tm % 60;
+          const th = Math.floor(tm / 60);
+          const h = th % 24;
+          const td = Math.floor(th / 24);
           const yr = Math.floor(td / 365);
           const mo = Math.floor((td % 365) / 30);
           const d = td % 30;
@@ -1462,7 +1471,6 @@
           html += makeBox(d, 'Hari') + makeColon('c1') + makeBox(h, 'Jam') + makeColon('c2') + makeBox(mi, 'Menit') + makeColon('c3') + makeBox(s, 'Detik');
         }
         ct.innerHTML = html;
-
         const tick = Math.floor(Date.now() / 500) % 2 === 0;
         document.querySelectorAll('.count-colon').forEach(el => { el.style.opacity = tick ? '1' : '0.2'; });
       }
@@ -1481,17 +1489,17 @@
           const div = document.createElement('div');
           div.className = `timeline-item${isRight ? ' right' : ''} reveal`;
           div.innerHTML = `
-            <div class="timeline-card">
-              <div class="timeline-meta">
-                <span class="timeline-icon">${item.icon}</span>
-                <span class="timeline-date">${item.date}</span>
-              </div>
-              <div class="timeline-title">${item.title}</div>
-              <p class="timeline-desc">${item.desc}</p>
-            </div>
-            <div class="timeline-dot">♥</div>
-            <div class="timeline-spacer"></div>
-          `;
+        <div class="timeline-card">
+          <div class="timeline-meta">
+            <span class="timeline-icon">${item.icon}</span>
+            <span class="timeline-date">${item.date}</span>
+          </div>
+          <div class="timeline-title">${item.title}</div>
+          <p class="timeline-desc">${item.desc}</p>
+        </div>
+        <div class="timeline-dot">♥</div>
+        <div class="timeline-spacer"></div>
+      `;
           tContainer.appendChild(div);
         });
       }
@@ -1500,8 +1508,13 @@
     // ================================================================
     // GALLERY
     // ================================================================
+    // ⬇️ TAMBAHKAN FOTO KAMU DI SINI!
+    // Upload foto ke folder docs/ (sejajar index.html), lalu tambahkan di array:
     const GALLERY_PHOTOS = [
       { src: 'bi1.jpg', caption: 'First Time Date di Bank Indonesia 💑' },
+      // { src: 'foto2.jpg', caption: 'Adventure bareng 🏔️' },
+      // { src: 'foto3.jpg', caption: 'Sunset yang indah 🌅' },
+      // ← Tambah terus di sini!
     ];
 
     try {
@@ -1530,11 +1543,11 @@
           item.className = 'masonry-item';
           const safeCaption = (p.caption || '').replace(/"/g, '&quot;');
           item.innerHTML = `
-            <div class="polaroid" style="transform:rotate(${rot}deg)">
-              <img src="${p.src}" alt="${safeCaption}" loading="lazy" onclick="openLightbox('${p.id}')" />
-              <input class="caption" type="text" placeholder="Tulis caption..." value="${safeCaption}"
-                onchange="updateCaption('${p.id}', this.value)" onclick="event.stopPropagation()" />
-            </div>`;
+        <div class="polaroid" style="transform:rotate(${rot}deg)">
+          <img src="${p.src}" alt="${safeCaption}" loading="lazy" onclick="openLightbox('${p.id}')" />
+          <input class="caption" type="text" placeholder="Tulis caption..." value="${safeCaption}"
+            onchange="updateCaption('${p.id}', this.value)" onclick="event.stopPropagation()" />
+        </div>`;
           m.appendChild(item);
         });
       }
@@ -1558,6 +1571,7 @@
         try { document.getElementById('lightbox').classList.remove('open'); } catch (e) { }
       }
 
+      // Expose ke global untuk inline onclick di HTML
       window.openLightbox = openLightbox;
       window.closeLightbox = closeLightbox;
       window.updateCaption = updateCaption;
@@ -1576,9 +1590,11 @@
       const playerEl = document.getElementById('music-player');
       let isPlaying = false;
       let isMini = true;
+      // Cek ada source aktif (bukan yang dikomentari)
       let hasMusic = false;
       try { hasMusic = !!(audio && audio.querySelector('source')); } catch (e) { }
 
+      // Selalu ambil miniBtn dari DOM saat dibutuhkan (hindari stale reference)
       function getMiniBtn() { return document.getElementById('miniBtn'); }
 
       const initMiniBtn = getMiniBtn();
@@ -1594,22 +1610,30 @@
       }
 
       function buildPlayerHTML() {
-        return `<div class="player-full">
-          <div class="player-header">
-            <span class="player-title">🎵 ${MUSIC_TITLE}</span>
-            <button class="player-minimize" onclick="minimizePlayer()">▼</button>
-          </div>
-          ${hasMusic ? `
-          <div class="progress-bar" id="progBar"><div class="progress-fill" id="progFill"></div></div>
-          <div class="time-row"><span id="timeCur">0:00</span><span id="timeDur">0:00</span></div>
-          <div class="player-controls"><button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button></div>
-          <div class="volume-row">
-            <span>🔈</span>
-            <input type="range" min="0" max="1" step="0.05" value="0.6"
-              oninput="document.getElementById('bgAudio').volume=this.value" />
-            <span>🔊</span>
-          </div>` : `<p class="player-no-music">Taruh <code>music.mp3</code> di repo<br>lalu uncomment baris audio di HTML</p>`}
-        </div>`;
+        return `
+  <div class="player-full">
+    <div class="player-header">
+      <span class="player-title">🎵 ${MUSIC_TITLE}</span>
+      <button class="player-minimize" onclick="minimizePlayer()">▼</button>
+    </div>
+    ${hasMusic ? `
+    <div class="progress-bar" id="progBar">
+      <div class="progress-fill" id="progFill"></div>
+    </div>
+    <div class="time-row">
+      <span id="timeCur">0:00</span>
+      <span id="timeDur">0:00</span>
+    </div>
+    <div class="player-controls">
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+    </div>
+    <div class="volume-row">
+      <span>🔈</span>
+      <input type="range" min="0" max="1" step="0.05" value="0.6"
+        oninput="document.getElementById('bgAudio').volume=this.value" />
+      <span>🔊</span>
+    </div>` : `<p class="player-no-music">Taruh <code>music.mp3</code> di repo<br>lalu uncomment baris audio di HTML</p>`}
+  </div>`;
       }
 
       function attachPlayerEvents() {
@@ -1620,7 +1644,8 @@
           if (progBar) {
             progBar.addEventListener('click', e => {
               const r = progBar.getBoundingClientRect();
-              audio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (audio.duration || 0);
+              const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+              audio.currentTime = ratio * (audio.duration || 0);
             });
           }
           audio.addEventListener('timeupdate', updateProgress);
@@ -1673,12 +1698,13 @@
         } catch (e) { console.warn('[minimizePlayer]', e); }
       }
 
+      // Expose ke global untuk inline onclick
       window.togglePlay = togglePlay;
       window.minimizePlayer = minimizePlayer;
     } catch (e) { console.warn('[Music player]', e); }
 
     // ================================================================
-    // SCROLL REVEAL
+    // SCROLL REVEAL — dijalankan TERAKHIR agar timeline sudah ada di DOM
     // ================================================================
     try {
       if ('IntersectionObserver' in window) {
@@ -1689,14 +1715,17 @@
               revealObserver.unobserve(e.target);
             }
           });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.12 });
 
+        // Observe semua .reveal termasuk yang baru di-inject oleh timeline
         document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
       } else {
+        // Fallback: browser lama tanpa IntersectionObserver
         document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
       }
     } catch (e) {
       console.warn('[Reveal]', e);
+      // Fallback jika observer crash: tampilkan semua konten langsung
       document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
     }
   </script>
