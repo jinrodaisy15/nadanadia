@@ -20,12 +20,13 @@ const LOVE_LETTER = {
 // Canvas confetti
 // ─────────────────────────────────────────────────────────────
 const runConfetti = (canvas) => {
+  if (!canvas) return () => {};
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
   const colors = ['#8B1A1A', '#C0392B', '#F0A0A0', '#F5EDD8', '#E8B04A', '#fff'];
-  const shapes = ['♥', '✦', '●', '■'];
+  const shapes = ['♥', '✦', '●', '★'];
   const particles = Array.from({ length: 80 }, () => ({
     x: Math.random() * canvas.width,
     y: -20 - Math.random() * 100,
@@ -49,9 +50,8 @@ const runConfetti = (canvas) => {
       p.x += p.vx;
       p.y += p.vy;
       p.rot += p.rotV;
-      p.vy += 0.05; // gravity
-      if (p.y > canvas.height * 0.8) p.opacity -= 0.025;
-
+      p.vy += 0.04;
+      if (p.y > canvas.height * 0.75) p.opacity -= 0.02;
       ctx.save();
       ctx.globalAlpha = Math.max(0, p.opacity);
       ctx.translate(p.x, p.y);
@@ -62,43 +62,48 @@ const runConfetti = (canvas) => {
       ctx.restore();
     });
     if (alive) frame = requestAnimationFrame(tick);
-    else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
   frame = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(frame);
 };
 
 // ─────────────────────────────────────────────────────────────
-// Typewriter text
+// Typewriter — completely self-contained, no prop callbacks
+// Receives: text, startSignal (boolean), onFinished (stable ref)
 // ─────────────────────────────────────────────────────────────
-const TypewriterParagraph = memo(({ text, delay = 0, onDone, isLast }) => {
+const TypewriterParagraph = memo(({ text, active, showCursor, onFinished }) => {
   const [displayed, setDisplayed] = useState('');
-  const [started, setStarted] = useState(false);
-  const idxRef = useRef(0);
+  const doneRef = useRef(false);
+  const onFinishedRef = useRef(onFinished);
+
+  // Keep ref in sync without adding to deps
+  useEffect(() => { onFinishedRef.current = onFinished; }, [onFinished]);
 
   useEffect(() => {
-    const t = setTimeout(() => setStarted(true), delay);
-    return () => clearTimeout(t);
-  }, [delay]);
-
-  useEffect(() => {
-    if (!started) return;
-    idxRef.current = 0;
+    if (!active) return;
+    // Reset for this paragraph
     setDisplayed('');
+    doneRef.current = false;
+    let idx = 0;
 
     const interval = setInterval(() => {
-      idxRef.current++;
-      setDisplayed(text.slice(0, idxRef.current));
-      if (idxRef.current >= text.length) {
+      idx++;
+      setDisplayed(text.slice(0, idx));
+      if (idx >= text.length) {
         clearInterval(interval);
-        if (onDone) onDone();
+        if (!doneRef.current) {
+          doneRef.current = true;
+          // Small delay before triggering next paragraph
+          setTimeout(() => onFinishedRef.current?.(), 300);
+        }
       }
-    }, 18);
+    }, 20);
 
     return () => clearInterval(interval);
-  }, [started, text, onDone]);
+  }, [active, text]); // only re-run when `active` flips to true or text changes
+
+  const isDone = displayed.length >= text.length;
 
   return (
     <p
@@ -106,7 +111,7 @@ const TypewriterParagraph = memo(({ text, delay = 0, onDone, isLast }) => {
       style={{ textIndent: '2em', minHeight: '32px' }}
     >
       {displayed}
-      {started && idxRef.current < text.length && isLast && (
+      {showCursor && !isDone && (
         <span className="typewriter-cursor" aria-hidden="true" />
       )}
     </p>
@@ -119,17 +124,19 @@ TypewriterParagraph.displayName = 'TypewriterParagraph';
 // ─────────────────────────────────────────────────────────────
 const EnvelopeSVG = memo(({ isOpen }) => (
   <div className="relative w-32 h-24 mx-auto select-none" style={{ perspective: '800px' }}>
-    {/* Envelope body */}
     <svg viewBox="0 0 128 88" fill="none" className="absolute inset-0 w-full h-full drop-shadow-xl">
       <rect width="128" height="88" rx="6" fill="#8B1A1A" />
       <path d="M0 88 L46 54 M128 88 L82 54" stroke="#F5EDD8" strokeWidth="2" opacity="0.5" />
-      {/* Bottom of flap line */}
       {!isOpen && <path d="M0 0 L64 44 L128 0" stroke="#F5EDD8" strokeWidth="2" fill="none" />}
     </svg>
-    {/* Flap — animates open */}
+    {/* Animated flap */}
     <div
       className="absolute top-0 left-0 w-full origin-top transition-transform duration-700 ease-in-out"
-      style={{ transform: isOpen ? 'rotateX(-175deg)' : 'rotateX(0deg)', transformStyle: 'preserve-3d', zIndex: 2 }}
+      style={{
+        transform: isOpen ? 'rotateX(-175deg)' : 'rotateX(0deg)',
+        transformStyle: 'preserve-3d',
+        zIndex: 2,
+      }}
     >
       <svg viewBox="0 0 128 44" fill="none" className="w-full h-auto">
         <path d="M0 0 L64 44 L128 0 Z" fill="#6B1010" />
@@ -153,24 +160,31 @@ EnvelopeSVG.displayName = 'EnvelopeSVG';
 // Main LoveLetter Component
 // ─────────────────────────────────────────────────────────────
 const LoveLetter = () => {
-  const [phase, setPhase] = useState('closed'); // closed | opening | open | typing | done
-  const [typingIndex, setTypingIndex] = useState(0);
+  // phase: 'closed' | 'open' | 'typing' | 'done'
+  const [phase, setPhase] = useState('closed');
+  // which paragraph index is currently being typed
+  const [activeIdx, setActiveIdx] = useState(0);
   const canvasRef = useRef(null);
   const sectionRef = useIntersectionObserver({ threshold: 0.2 });
 
   const handleEnvelopeClick = useCallback(() => {
     if (phase !== 'closed') return;
-    setPhase('opening');
-    setTimeout(() => setPhase('open'), 700);
-    setTimeout(() => setPhase('typing'), 1000);
+    // Start opening animation
+    setPhase('open');
+    // After envelope opens, start letter slide + typing
+    setTimeout(() => {
+      setPhase('typing');
+      setActiveIdx(0);
+    }, 900);
   }, [phase]);
 
+  // Called when paragraph i finishes typing
   const handleParagraphDone = useCallback((idx) => {
-    if (idx < LOVE_LETTER.paragraphs.length - 1) {
-      setTypingIndex(idx + 1);
+    const next = idx + 1;
+    if (next < LOVE_LETTER.paragraphs.length) {
+      setActiveIdx(next);
     } else {
       setPhase('done');
-      // Fire confetti
       setTimeout(() => {
         const canvas = canvasRef.current;
         if (canvas) runConfetti(canvas);
@@ -178,23 +192,16 @@ const LoveLetter = () => {
     }
   }, []);
 
-  const isTyping = phase === 'typing' || phase === 'done';
+  const isLetterVisible = phase === 'typing' || phase === 'done';
 
   return (
     <section id="love-letter" className="py-24 px-4 relative">
       {/* Confetti canvas */}
-      <canvas
-        ref={canvasRef}
-        className="confetti-canvas"
-        aria-hidden="true"
-      />
+      <canvas ref={canvasRef} className="confetti-canvas" aria-hidden="true" />
 
       <div className="max-w-2xl mx-auto">
         {/* Section header */}
-        <div
-          ref={sectionRef}
-          className="reveal text-center mb-12"
-        >
+        <div ref={sectionRef} className="reveal text-center mb-12">
           <p className="font-dancing text-maroon-400 dark:text-dark-accent text-xl mb-1">Dari Hati</p>
           <h2 className="section-label">Surat Cinta</h2>
           <div className="ornament-line max-w-xs mx-auto mt-3">
@@ -202,7 +209,7 @@ const LoveLetter = () => {
           </div>
         </div>
 
-        {/* Envelope — click to open */}
+        {/* Envelope */}
         <div className="flex flex-col items-center mb-8">
           <div
             className={`transition-all duration-500 ${phase === 'closed' ? 'cursor-pointer hover:scale-105 animate-sway' : ''}`}
@@ -214,7 +221,6 @@ const LoveLetter = () => {
           >
             <EnvelopeSVG isOpen={phase !== 'closed'} />
           </div>
-
           {phase === 'closed' && (
             <p className="mt-4 font-dancing text-maroon-400 dark:text-dark-accent text-lg animate-pulse-heart">
               ✦ Klik untuk membuka ✦
@@ -225,20 +231,20 @@ const LoveLetter = () => {
         {/* Letter paper — slides in when opened */}
         <div
           className={`transition-all duration-700 ease-out ${
-            isTyping
+            isLetterVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-8 pointer-events-none'
           }`}
         >
           <div className="letter-paper rounded-2xl p-8 sm:p-12 shadow-card relative overflow-hidden border border-cream-300 dark:border-dark-border">
             {/* Corner ornaments */}
-            {['tl','tr','bl','br'].map(pos => (
+            {['tl', 'tr', 'bl', 'br'].map(pos => (
               <div
                 key={pos}
-                className={`absolute text-maroon-300 dark:text-dark-accent opacity-25 text-2xl
-                  ${pos === 'tl' ? 'top-4 left-4' : ''}
-                  ${pos === 'tr' ? 'top-4 right-4' : ''}
-                  ${pos === 'bl' ? 'bottom-4 left-4' : ''}
+                className={`absolute text-maroon-300 dark:text-dark-accent opacity-25 text-2xl pointer-events-none
+                  ${pos === 'tl' ? 'top-4 left-4'   : ''}
+                  ${pos === 'tr' ? 'top-4 right-4'  : ''}
+                  ${pos === 'bl' ? 'bottom-4 left-4'  : ''}
                   ${pos === 'br' ? 'bottom-4 right-4' : ''}
                 `}
                 aria-hidden="true"
@@ -258,20 +264,39 @@ const LoveLetter = () => {
                 {LOVE_LETTER.greeting}
               </p>
 
-              <div>
-                {LOVE_LETTER.paragraphs.map((para, i) => (
-                  i <= typingIndex && (phase === 'typing' || phase === 'done') ? (
-                    <TypewriterParagraph
-                      key={i}
-                      text={para}
-                      delay={i === typingIndex ? 0 : 0}
-                      onDone={() => handleParagraphDone(i)}
-                      isLast={i === typingIndex}
-                    />
-                  ) : null
-                ))}
-              </div>
+              {/* Render each paragraph; only `active` one types, previous ones show full text */}
+              {LOVE_LETTER.paragraphs.map((para, i) => {
+                // Before typing starts, show nothing
+                if (phase === 'closed' || phase === 'open') return null;
+                // If paragraph index hasn't been reached yet, don't render
+                if (i > activeIdx && phase !== 'done') return null;
 
+                // If we're done, show all paragraphs as plain text
+                if (phase === 'done' || i < activeIdx) {
+                  return (
+                    <p
+                      key={i}
+                      className="font-lato text-brown-800 dark:text-dark-muted leading-8 text-base mb-4"
+                      style={{ textIndent: '2em' }}
+                    >
+                      {para}
+                    </p>
+                  );
+                }
+
+                // Current active paragraph — typewriter
+                return (
+                  <TypewriterParagraph
+                    key={i}
+                    text={para}
+                    active={true}
+                    showCursor={true}
+                    onFinished={() => handleParagraphDone(i)}
+                  />
+                );
+              })}
+
+              {/* Closing — only shown when done */}
               {phase === 'done' && (
                 <div className="mt-8 text-right animate-fade-in">
                   <p className="font-lato text-brown-800 dark:text-dark-muted text-sm">{LOVE_LETTER.closing}</p>
@@ -279,7 +304,7 @@ const LoveLetter = () => {
                     {LOVE_LETTER.signature}
                   </p>
                   <div className="flex justify-center gap-3 mt-6 opacity-40" aria-hidden="true">
-                    {['♥','✦','♥','✦','♥'].map((s, i) => (
+                    {['♥', '✦', '♥', '✦', '♥'].map((s, i) => (
                       <span key={i} className="text-maroon-400 dark:text-dark-accent text-sm">{s}</span>
                     ))}
                   </div>

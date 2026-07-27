@@ -1,7 +1,6 @@
 import React, { useState, useCallback, lazy, Suspense } from 'react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { useScrollThrottle } from './hooks/useThrottle';
-import FloatingHearts from './components/FloatingHearts';
 import Hero from './components/Hero';
 import Timeline from './components/Timeline';
 import Footer from './components/Footer';
@@ -33,9 +32,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// =====================================================================
 // Section loading fallback
-// =====================================================================
 const SectionSkeleton = () => (
   <div className="py-24 px-4 max-w-4xl mx-auto space-y-4">
     <div className="skeleton h-8 w-48 mx-auto rounded-full" />
@@ -45,7 +42,7 @@ const SectionSkeleton = () => (
 );
 
 // =====================================================================
-// Dark Mode Toggle Button
+// Dark Mode Toggle
 // =====================================================================
 const DarkToggle = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -53,21 +50,18 @@ const DarkToggle = () => {
     <button
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? '☀️ Light mode' : '🌙 Dark mode'}
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold font-lato
-        bg-maroon-500 bg-opacity-10 hover:bg-opacity-20 text-maroon-500 dark:text-dark-text
-        dark:bg-dark-accent dark:bg-opacity-20 dark:hover:bg-opacity-30
-        border border-maroon-500 border-opacity-20 dark:border-dark-accent dark:border-opacity-30
-        transition-all duration-200"
+      className="w-8 h-8 flex items-center justify-center rounded-full
+        text-maroon-500 dark:text-dark-text hover:bg-maroon-500 hover:bg-opacity-10
+        dark:hover:bg-dark-accent dark:hover:bg-opacity-15
+        transition-all duration-200 text-base"
     >
-      <span className="text-sm">{isDark ? '☀️' : '🌙'}</span>
-      <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
+      {isDark ? '☀️' : '🌙'}
     </button>
   );
 };
 
 // =====================================================================
-// Navbar
+// Minimalist Navbar
 // =====================================================================
 const Navbar = React.memo(() => {
   const [scrolled, setScrolled] = useState(false);
@@ -76,8 +70,9 @@ const Navbar = React.memo(() => {
   const onScroll = useCallback(() => {
     setScrolled(window.scrollY > 60);
   }, []);
-
   useScrollThrottle(onScroll, 80);
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   const links = [
     { href: '#hero',        label: 'Beranda' },
@@ -86,32 +81,31 @@ const Navbar = React.memo(() => {
     { href: '#love-letter', label: 'Surat Cinta' },
   ];
 
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
-
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
-          ? 'glass-card shadow-card py-3'
-          : 'bg-transparent py-5'
+          ? 'bg-[var(--surface)] bg-opacity-90 backdrop-blur-md border-b border-[var(--border)] py-3 shadow-sm'
+          : 'bg-transparent py-4'
       }`}
     >
-      <div className="max-w-5xl mx-auto px-4 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-5 flex items-center justify-between">
         {/* Logo */}
         <a
           href="#hero"
-          className="font-dancing font-bold text-maroon-500 dark:text-dark-text text-2xl hover:text-maroon-600 transition-colors"
+          className="font-dancing font-bold text-maroon-500 dark:text-dark-text text-xl leading-none transition-opacity hover:opacity-70"
+          aria-label="Nada ♥ Nadia"
         >
           N <span className="text-maroon-300 dark:text-dark-accent">♥</span> N
         </a>
 
-        {/* Desktop links + dark toggle */}
-        <div className="hidden sm:flex items-center gap-5">
+        {/* Desktop links */}
+        <div className="hidden sm:flex items-center gap-6">
           {links.map(({ href, label }) => (
             <a
               key={href}
               href={href}
-              className="font-lato text-sm text-maroon-500 dark:text-dark-text hover:text-maroon-700 dark:hover:text-dark-accent transition-colors uppercase tracking-wider font-semibold"
+              className="font-lato text-xs text-maroon-500 dark:text-dark-muted hover:text-maroon-700 dark:hover:text-dark-text transition-colors uppercase tracking-[0.15em] font-semibold"
             >
               {label}
             </a>
@@ -119,28 +113,29 @@ const Navbar = React.memo(() => {
           <DarkToggle />
         </div>
 
-        {/* Mobile: dark toggle + hamburger */}
-        <div className="sm:hidden flex items-center gap-2">
+        {/* Mobile */}
+        <div className="sm:hidden flex items-center gap-1">
           <DarkToggle />
           <button
-            className="text-maroon-500 dark:text-dark-text text-2xl"
+            className="w-8 h-8 flex items-center justify-center text-maroon-500 dark:text-dark-text hover:opacity-70 transition-opacity"
             onClick={() => setMenuOpen(o => !o)}
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
           >
-            {menuOpen ? '✕' : '☰'}
+            <span className="text-lg leading-none">{menuOpen ? '✕' : '☰'}</span>
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — slides down */}
       {menuOpen && (
-        <div className="sm:hidden glass-card border-t border-cream-300 dark:border-dark-border mt-1 px-4 py-4 flex flex-col gap-3">
+        <div className="sm:hidden bg-[var(--surface)] border-t border-[var(--border)] px-5 py-4 flex flex-col gap-4">
           {links.map(({ href, label }) => (
             <a
               key={href}
               href={href}
               onClick={closeMenu}
-              className="font-lato text-sm text-maroon-500 dark:text-dark-text hover:text-maroon-700 transition-colors uppercase tracking-wider font-semibold py-1"
+              className="font-lato text-xs text-maroon-500 dark:text-dark-muted hover:text-maroon-700 dark:hover:text-dark-text transition-colors uppercase tracking-[0.15em] font-semibold py-1"
             >
               {label}
             </a>
@@ -158,7 +153,7 @@ Navbar.displayName = 'Navbar';
 function AppContent() {
   return (
     <div className="relative min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
-      <FloatingHearts />
+      {/* FloatingHearts removed for cleaner look */}
       <Navbar />
 
       <main>
