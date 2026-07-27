@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 
-// ============================================================
-// TANGGAL JADIAN — ubah di sini jika perlu
-// ============================================================
 const ANNIVERSARY_DATE = new Date('2026-04-15T00:00:00');
 
 const pad = (n) => String(n).padStart(2, '0');
 
-const CountdownTimer = () => {
+const CountdownTimer = memo(() => {
   const [elapsed, setElapsed] = useState(null);
   const [tick, setTick] = useState(false);
 
   useEffect(() => {
     const calculate = () => {
       const now   = new Date();
-      const diff  = now - ANNIVERSARY_DATE; // ms since anniversary
+      const diff  = now - ANNIVERSARY_DATE;
 
       if (diff < 0) {
-        // Before anniversary — countdown TO the date
         const abs = Math.abs(diff);
         const days    = Math.floor(abs / (1000 * 60 * 60 * 24));
         const hours   = Math.floor((abs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -25,7 +21,6 @@ const CountdownTimer = () => {
         const seconds = Math.floor((abs % (1000 * 60)) / 1000);
         return { mode: 'countdown', days, hours, minutes, seconds };
       } else {
-        // After anniversary — show time together
         const totalSeconds = Math.floor(diff / 1000);
         const seconds = totalSeconds % 60;
         const totalMinutes = Math.floor(totalSeconds / 60);
@@ -52,19 +47,19 @@ const CountdownTimer = () => {
 
   const BoxItem = ({ value, label }) => (
     <div className="flex flex-col items-center gap-1">
-      <div className="counter-box rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center shadow-romantic">
-        <span className="font-playfair font-bold text-2xl sm:text-3xl text-cream-100 tabular-nums">
+      <div className="counter-box dark:bg-dark-card dark:border dark:border-dark-border rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center shadow-romantic dark:shadow-dark-card">
+        <span className="font-playfair font-bold text-2xl sm:text-3xl text-cream-100 dark:text-dark-gold tabular-nums">
           {pad(value)}
         </span>
       </div>
-      <span className="text-xs font-lato text-maroon-500 uppercase tracking-widest font-semibold">
+      <span className="text-xs font-lato text-maroon-500 dark:text-dark-gold uppercase tracking-widest font-semibold">
         {label}
       </span>
     </div>
   );
 
   const Colon = () => (
-    <span className={`font-playfair text-2xl sm:text-3xl text-maroon-400 font-bold mb-5 transition-opacity duration-300 ${tick ? 'opacity-100' : 'opacity-30'}`}>
+    <span className={`font-playfair text-2xl sm:text-3xl text-maroon-400 dark:text-dark-rose font-bold mb-5 transition-opacity duration-300 ${tick ? 'opacity-100' : 'opacity-30'}`}>
       :
     </span>
   );
@@ -73,7 +68,7 @@ const CountdownTimer = () => {
     <div className="text-center">
       {elapsed.mode === 'countdown' ? (
         <>
-          <p className="font-dancing text-maroon-400 text-xl mb-4">
+          <p className="font-dancing text-maroon-400 dark:text-dark-rose text-xl mb-4">
             Menuju Hari Spesial Kita...
           </p>
           <div className="flex items-end justify-center gap-2 sm:gap-4 flex-wrap">
@@ -88,7 +83,7 @@ const CountdownTimer = () => {
         </>
       ) : (
         <>
-          <p className="font-dancing text-maroon-400 text-xl mb-4">
+          <p className="font-dancing text-maroon-400 dark:text-dark-rose text-xl mb-4">
             Kita telah bersama selama...
           </p>
           <div className="flex items-end justify-center gap-2 sm:gap-4 flex-wrap">
@@ -116,6 +111,6 @@ const CountdownTimer = () => {
       )}
     </div>
   );
-};
+});
 
 export default CountdownTimer;

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -35,6 +36,15 @@ export default {
           800: '#3B1C1C',
           900: '#2A1010',
         },
+        dark: {
+          bg: '#1B1B1B',
+          card: '#2A2A2A',
+          rose: '#D87093',
+          gold: '#E6C687',
+          text: '#F5EDD8',
+          subtext: '#D1C4B0',
+          border: '#3A3A3A',
+        }
       },
       fontFamily: {
         dancing: ['"Dancing Script"', 'cursive'],
@@ -81,6 +91,7 @@ export default {
       boxShadow: {
         'romantic': '0 4px 20px rgba(139, 26, 26, 0.15), 0 2px 8px rgba(139, 26, 26, 0.1)',
         'card': '0 8px 32px rgba(139, 26, 26, 0.12), 0 2px 8px rgba(0,0,0,0.08)',
+        'dark-card': '0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0,0,0,0.3)',
         'photo': '4px 4px 16px rgba(0,0,0,0.3), -2px -2px 8px rgba(255,255,255,0.5)',
         'inset-romantic': 'inset 0 2px 8px rgba(139,26,26,0.1)',
       },
