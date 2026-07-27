@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const HEARTS = ['❤️', '🩷', '💕', '💖', '💗', '💓', '🌸', '✨'];
 
-const FloatingHearts = memo(() => {
+const FloatingHearts = () => {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const FloatingHearts = memo(() => {
       setTimeout(() => heart.remove(), 10000);
     };
 
-    const interval = setInterval(createHeart, 1400);
+    const interval = setInterval(createHeart, 1200);
     return () => clearInterval(interval);
   }, []);
 
@@ -38,6 +38,6 @@ const FloatingHearts = memo(() => {
       aria-hidden="true"
     />
   );
-});
+};
 
 export default FloatingHearts;

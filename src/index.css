@@ -4,6 +4,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== CSS VARIABLES ===== */
+:root {
+  --bg:         #F5EDD8;
+  --surface:    #FFFBF2;
+  --card:       rgba(255, 251, 242, 0.85);
+  --text:       #3B1C1C;
+  --muted:      #8B4A4A;
+  --accent:     #8B1A1A;
+  --accent2:    #C0392B;
+  --border:     rgba(139, 26, 26, 0.15);
+  --scrollbar:  #8B1A1A;
+  --scrolltrack:#F5EDD8;
+}
+
+.dark {
+  --bg:         #1B1212;
+  --surface:    #241818;
+  --card:       rgba(46, 30, 30, 0.88);
+  --text:       #F0E4D4;
+  --muted:      #B89080;
+  --accent:     #C0555A;
+  --accent2:    #E0707A;
+  --border:     rgba(192, 85, 90, 0.2);
+  --scrollbar:  #C0555A;
+  --scrolltrack:#241818;
+}
+
 /* ===== BASE ===== */
 * {
   box-sizing: border-box;
@@ -14,59 +41,56 @@ html {
 }
 
 body {
-  background-color: #F5EDD8;
-  color: #3B1C1C;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: 'Lato', sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ===== SCALLOPED BORDER UTILITY ===== */
-.scallop-border {
-  position: relative;
-}
-.scallop-border::before,
-.scallop-border::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background-image: radial-gradient(circle at 50% 0%, #F5EDD8 14px, transparent 14px),
-                    radial-gradient(circle at 50% 100%, #F5EDD8 14px, transparent 14px);
-  background-size: 28px 20px;
-  background-position: top;
-}
-.scallop-border::before { top: -18px; }
-.scallop-border::after  { bottom: -18px; background-position: bottom; }
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--scrolltrack); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
 
-/* ===== SECTION DIVIDER WAVY ===== */
-.wave-divider {
-  width: 100%;
-  overflow: hidden;
-  line-height: 0;
+/* ===== SECTION LABEL ===== */
+.section-label {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: var(--accent);
+  text-shadow: 2px 2px 0px rgba(139,26,26,0.15);
 }
 
-/* ===== HEART CLIP PATH ===== */
-.heart-shape {
-  clip-path: path('M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z');
+/* ===== GLASS CARD ===== */
+.glass-card {
+  background: var(--card);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-/* ===== POLAROID PHOTO ===== */
+/* ===== POLAROID ===== */
 .polaroid {
   background: white;
   padding: 12px 12px 40px;
   box-shadow: 4px 4px 16px rgba(0,0,0,0.25), -1px -1px 4px rgba(255,255,255,0.8);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+.dark .polaroid {
+  background: #f0e8d8;
 }
 .polaroid:hover {
-  transform: scale(1.04) rotate(0deg) !important;
-  box-shadow: 8px 8px 24px rgba(0,0,0,0.3), -2px -2px 8px rgba(255,255,255,0.8);
+  box-shadow: 8px 8px 28px rgba(0,0,0,0.35), -3px -3px 10px rgba(255,255,255,0.5);
   z-index: 10;
 }
 
 /* ===== TIMELINE LINE ===== */
 .timeline-line {
   background: linear-gradient(to bottom, #8B1A1A, #C0392B, #8B1A1A);
+}
+.dark .timeline-line {
+  background: linear-gradient(to bottom, #C0555A, #E0707A, #C0555A);
 }
 
 /* ===== MUSIC PLAYER ===== */
@@ -76,8 +100,12 @@ body {
   border: 1px solid rgba(255,255,255,0.15);
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
+.dark .music-player {
+  background: linear-gradient(135deg, #2E1818, #1B1010);
+  border-color: rgba(192, 85, 90, 0.3);
+}
 
-/* ===== SCROLL ANIMATION CLASSES ===== */
+/* ===== SCROLL REVEAL ===== */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -87,36 +115,196 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
 
-/* ===== UPLOAD DROPZONE ===== */
-.dropzone {
-  border: 2px dashed #C0392B;
-  background: rgba(192, 57, 43, 0.04);
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-left, .reveal-right, .reveal-scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ===== SKELETON LOADING ===== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(139, 26, 26, 0.06) 0%,
+    rgba(139, 26, 26, 0.12) 50%,
+    rgba(139, 26, 26, 0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+.dark .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(192, 85, 90, 0.08) 0%,
+    rgba(192, 85, 90, 0.18) 50%,
+    rgba(192, 85, 90, 0.08) 100%
+  );
+  background-size: 200% 100%;
+}
+@keyframes skeleton-loading {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ===== LOVE LETTER PAPER ===== */
+.letter-paper {
+  background: linear-gradient(180deg, rgba(245,237,216,0) 0%, rgba(245,237,216,0.5) 100%),
+              repeating-linear-gradient(transparent, transparent 31px, rgba(139,26,26,0.12) 31px, rgba(139,26,26,0.12) 32px);
+  background-color: #FFFBF2;
+  line-height: 32px;
+}
+.dark .letter-paper {
+  background: linear-gradient(180deg, rgba(36,24,24,0) 0%, rgba(36,24,24,0.5) 100%),
+              repeating-linear-gradient(transparent, transparent 31px, rgba(192,85,90,0.1) 31px, rgba(192,85,90,0.1) 32px);
+  background-color: #2E1E1E;
+}
+
+/* ===== ENVELOPE ===== */
+.envelope-wrap {
+  perspective: 600px;
+}
+.envelope-flap {
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
+  backface-visibility: hidden;
+}
+.envelope-flap.open {
+  transform: rotateX(-180deg);
+}
+
+/* ===== TYPEWRITER ===== */
+.typewriter-text {
+  overflow: hidden;
+  white-space: pre-wrap;
+  opacity: 0;
+}
+.typewriter-text.typing {
+  opacity: 1;
+}
+.typewriter-cursor::after {
+  content: '|';
+  display: inline-block;
+  animation: blink 0.8s step-end infinite;
+  color: var(--accent2);
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ===== CONFETTI ===== */
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ===== GALLERY 3D TILT ===== */
+.gallery-card-3d {
+  transition: transform 0.15s ease-out;
+  transform-style: preserve-3d;
+}
+
+/* ===== FLOATING HEARTS ===== */
+.hearts-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* ===== HERO GRADIENT ===== */
+.hero-bg {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(192,57,43,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(139,26,26,0.06) 0%, transparent 50%),
+    var(--bg);
+}
+
+/* ===== ORNAMENT LINE ===== */
+.ornament-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ornament-line::before,
+.ornament-line::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent), transparent);
+}
+
+/* ===== COUNTER BOX ===== */
+.counter-box {
+  background: linear-gradient(135deg, #8B1A1A 0%, #6B1010 100%);
+  box-shadow: 0 4px 15px rgba(139,26,26,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.dark .counter-box {
+  background: linear-gradient(135deg, #C0555A 0%, #8B2020 100%);
+}
+
+/* ===== BUTTON ===== */
+.btn-romantic {
+  background: linear-gradient(135deg, #8B1A1A, #C0392B);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
-.dropzone:hover, .dropzone.dragover {
-  background: rgba(192, 57, 43, 0.08);
-  border-color: #8B1A1A;
+.dark .btn-romantic {
+  background: linear-gradient(135deg, #C0555A, #E0707A);
 }
-
-/* ===== CUSTOM SCROLLBAR ===== */
-::-webkit-scrollbar {
-  width: 6px;
+.btn-romantic::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
 }
-::-webkit-scrollbar-track {
-  background: #F5EDD8;
+.btn-romantic:hover::after {
+  width: 200px; height: 200px;
 }
-::-webkit-scrollbar-thumb {
-  background: #8B1A1A;
-  border-radius: 3px;
-}
-
-/* ===== HEART BEAT INPUT ===== */
-.play-btn {
-  transition: transform 0.15s ease;
-}
-.play-btn:active {
-  transform: scale(0.92);
+.btn-romantic:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139,26,26,0.4);
 }
 
 /* ===== GALLERY MASONRY ===== */
@@ -135,108 +323,44 @@ body {
   margin-bottom: 16px;
 }
 
-/* ===== LOVE LETTER PAPER ===== */
-.letter-paper {
-  background: linear-gradient(180deg, rgba(245,237,216,0) 0%, rgba(245,237,216,0.5) 100%),
-              repeating-linear-gradient(transparent, transparent 31px, rgba(139,26,26,0.12) 31px, rgba(139,26,26,0.12) 32px);
-  background-color: #FFFBF2;
-  line-height: 32px;
-}
-
-/* ===== FLOATING HEARTS CONTAINER ===== */
-.hearts-container {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-/* ===== SECTION LABEL ===== */
-.section-label {
-  font-family: 'Dancing Script', cursive;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  color: #8B1A1A;
-  text-shadow: 2px 2px 0px rgba(139,26,26,0.15);
-}
-
-/* ===== HERO GRADIENT ===== */
-.hero-bg {
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(192,57,43,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(139,26,26,0.06) 0%, transparent 50%),
-    #F5EDD8;
-}
-
-/* ===== GLASS CARD ===== */
-.glass-card {
-  background: rgba(255, 251, 242, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.6);
-}
-
-/* ===== STAMP STYLE ===== */
-.stamp {
-  border: 3px solid #8B1A1A;
+/* ===== DARK MODE TOGGLE ===== */
+.theme-toggle {
+  width: 40px;
+  height: 22px;
+  background: rgba(139,26,26,0.2);
+  border-radius: 999px;
   position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border: 1px solid rgba(139,26,26,0.3);
 }
-.stamp::before {
-  content: '';
+.dark .theme-toggle {
+  background: rgba(192,85,90,0.3);
+  border-color: rgba(192,85,90,0.4);
+}
+.theme-toggle-knob {
   position: absolute;
-  inset: 4px;
-  border: 1px dashed #8B1A1A;
-  opacity: 0.4;
-}
-
-/* ===== BUTTON HOVER ===== */
-.btn-romantic {
-  background: linear-gradient(135deg, #8B1A1A, #C0392B);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-.btn-romantic::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255,255,255,0.2);
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #8B1A1A;
   border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.4s, height 0.4s;
+  transition: transform 0.3s ease;
 }
-.btn-romantic:hover::after {
-  width: 200px;
-  height: 200px;
-}
-.btn-romantic:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(139,26,26,0.4);
+.dark .theme-toggle-knob {
+  transform: translateX(18px);
+  background: #C0555A;
 }
 
-/* ===== ORNAMENT LINE ===== */
-.ornament-line {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* ===== PLAY BTN ===== */
+.play-btn {
+  transition: transform 0.15s ease;
 }
-.ornament-line::before,
-.ornament-line::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #8B1A1A, transparent);
+.play-btn:active {
+  transform: scale(0.92);
 }
 
-/* ===== COUNTER BOX ===== */
-.counter-box {
-  background: linear-gradient(135deg, #8B1A1A 0%, #6B1010 100%);
-  box-shadow: 0 4px 15px rgba(139,26,26,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-}
-
-/* ===== RESPONSIVE VIDEO/IMAGE ASPECT ===== */
-.aspect-polaroid {
-  aspect-ratio: 3/4;
-}
+/* ===== SCALLOP & ASPECT ===== */
+.scallop-border { position: relative; }
+.aspect-polaroid { aspect-ratio: 3/4; }

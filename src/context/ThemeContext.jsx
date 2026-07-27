@@ -1,37 +1,40 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const ThemeContext = createContext();
+const ThemeContext = createContext({ isDark: false, toggleTheme: () => {} });
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved) return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      return localStorage.getItem('nn-theme') === 'dark';
+    } catch {
+      return false;
+    }
   });
 
   useEffect(() => {
     const root = document.documentElement;
-    const themeColorMeta = document.getElementById('theme-color-meta');
-    
-    if (theme === 'dark') {
+    if (isDark) {
       root.classList.add('dark');
-      if (themeColorMeta) themeColorMeta.setAttribute('content', '#1B1B1B');
     } else {
       root.classList.remove('dark');
-      if (themeColorMeta) themeColorMeta.setAttribute('content', '#8B1A1A');
     }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    try {
+      localStorage.setItem('nn-theme', isDark ? 'dark' : 'light');
+    } catch { /* ignore */ }
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
+    // Update theme-color meta
+    const meta = document.getElementById('theme-color-meta');
+    if (meta) meta.setAttribute('content', isDark ? '#1B1212' : '#8B1A1A');
+  }, [isDark]);
+
+  const toggleTheme = () => setIsDark(d => !d);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
 export const useTheme = () => useContext(ThemeContext);
+export default ThemeContext;
