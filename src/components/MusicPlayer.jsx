@@ -6,7 +6,7 @@ import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from '
 const BASE = import.meta.env.BASE_URL;
 
 const PLAYLIST = [
-  { title: 'Lagu Kita',        artist: 'Nada ♥ Nadia', src: `${BASE}music/music.mp3` },
+  { title: 'semua-aku-dirayakan', artist: 'Nadin Amizah', src: `${BASE}music/music.mp3` },
   // { title: 'Lagu Kedua',    artist: 'Artist',        src: `${BASE}music/song2.mp3` },
   // { title: 'Lagu Ketiga',   artist: 'Artist',        src: `${BASE}music/song3.mp3` },
 ];
@@ -19,11 +19,10 @@ const EqBars = memo(({ playing }) => (
     {[0, 1, 2].map(i => (
       <div
         key={i}
-        className={`w-1 rounded-sm bg-cream-200 dark:bg-dark-text transition-all ${
-          playing
+        className={`w-1 rounded-sm bg-cream-200 dark:bg-dark-text transition-all ${playing
             ? i === 0 ? 'animate-eq-bar1' : i === 1 ? 'animate-eq-bar2' : 'animate-eq-bar3'
             : ''
-        }`}
+          }`}
         style={{ height: playing ? undefined : '4px' }}
       />
     ))}
@@ -49,16 +48,16 @@ const shuffleArray = (arr) => {
 const MusicPlayer = () => {
   const audioRef = useRef(null);
 
-  const [trackIndex, setTrackIndex]   = useState(0);
-  const [isPlaying,  setIsPlaying]    = useState(false);
-  const [progress,   setProgress]     = useState(0);
-  const [duration,   setDuration]     = useState(0);
-  const [volume,     setVolume]       = useState(0.6);
-  const [minimized,  setMinimized]    = useState(true);
-  const [hasError,   setHasError]     = useState(false);
-  const [showList,   setShowList]     = useState(false);
-  const [repeat,     setRepeat]       = useState('none'); // 'none' | 'one' | 'all'
-  const [shuffle,    setShuffle]      = useState(false);
+  const [trackIndex, setTrackIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.6);
+  const [minimized, setMinimized] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [showList, setShowList] = useState(false);
+  const [repeat, setRepeat] = useState('none'); // 'none' | 'one' | 'all'
+  const [shuffle, setShuffle] = useState(false);
   const [shuffleOrder, setShuffleOrder] = useState(() => PLAYLIST.map((_, i) => i));
 
   const currentTrack = useMemo(() => PLAYLIST[trackIndex] || PLAYLIST[0], [trackIndex]);
@@ -83,26 +82,26 @@ const MusicPlayer = () => {
     if (!audio) return;
     audio.volume = volume;
 
-    const onTimeUpdate  = () => { if (audio.duration) setProgress(audio.currentTime / audio.duration); };
-    const onMeta        = () => setDuration(audio.duration);
-    const onError       = () => setHasError(true);
-    const onEnded       = () => handleTrackEnd();
+    const onTimeUpdate = () => { if (audio.duration) setProgress(audio.currentTime / audio.duration); };
+    const onMeta = () => setDuration(audio.duration);
+    const onError = () => setHasError(true);
+    const onEnded = () => handleTrackEnd();
 
-    audio.addEventListener('timeupdate',    onTimeUpdate);
+    audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onMeta);
-    audio.addEventListener('error',         onError);
-    audio.addEventListener('ended',         onEnded);
+    audio.addEventListener('error', onError);
+    audio.addEventListener('ended', onEnded);
     return () => {
-      audio.removeEventListener('timeupdate',    onTimeUpdate);
+      audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('loadedmetadata', onMeta);
-      audio.removeEventListener('error',         onError);
-      audio.removeEventListener('ended',         onEnded);
+      audio.removeEventListener('error', onError);
+      audio.removeEventListener('ended', onEnded);
     };
   }, [repeat, shuffle, shuffleOrder, trackIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTrackEnd = useCallback(() => {
     if (repeat === 'one') {
-      audioRef.current?.play().catch(() => {});
+      audioRef.current?.play().catch(() => { });
       return;
     }
     if (shuffle) {
