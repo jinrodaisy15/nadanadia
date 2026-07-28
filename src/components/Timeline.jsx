@@ -5,33 +5,43 @@ import React, { useEffect, useRef, memo } from 'react';
 // ============================================================
 const TIMELINE_ITEMS = [
   {
-    date: '15 April 2026',
-    icon: '💑',
-    title: 'Awal Kisah Kita',
+    date: 'Gatau Lupa Tanggalnya, Keknya antara 24-25 Desember 2025 deh pas Natalan',
+    icon: '🎄',
+    title: 'First Time Ketemu di Roblox, iya ROBLOX',
     description:
-      'Hari yang paling berkesan — hari di mana kita resmi menjadi sepasang kekasih. Terima kasih sudah mau menjadi bagian dari hidupku.',
+      'GATAUUU WEHH, LUPA KETEMU GEGARA APA, POKOKNYA NADIA FRIENDLY DULUANN GEHHH WKWKWK😭 Kita bener bener baru kenal dan kita ngobrol soal Background awal masing masing disini, Gue cuek dan dia pun sama cueknya, kita gak saling peduli dan kita kebetulan sering se-Server ketika main di Map yang sama, dan KITA GAK PEDULI COY, se Random itu',
   },
   {
-    date: 'Mei 2026',
+    date: '15-16 Februari 2026',
     icon: '🌻',
-    title: 'Kencan Pertama',
+    title: 'Ketemuan Pertama Kali di Blok M',
     description:
-      'Pergi bersama untuk pertama kali, tertawa, makan es krim, dan berjalan pelan menikmati hari yang sederhana tapi tak terlupakan.',
+      'Disini masih canggung, Ngobrol kadang kadang aja dan gue masih cuek bat sumpah, Dia makan siang sendirian dan gue cuma beli Dimsum Bakar doang anjir, akhirnya kita Ngobrol banyak di Blok M Hub dan gue pegang tangan dia, dan dia kelihatan Ilfeel wkwk, tapi akhirnya mau juga pegangan tangan sama gue di Taman Literasi dan sampe Pulang di Halte Transjakarta hehe',
   },
   {
-    date: 'Juni 2026',
-    icon: '🏔️',
-    title: 'Petualangan Pertama',
+    date: 'Februari - April 2026',
+    icon: '👉👈',
+    title: 'Masa PDKT (Trial 3 Bulan ceunah!!)',
     description:
-      'Akhirnya kita pergi adventure bersama! Mendaki, foto-foto, dan menikmati alam bersama-sama.',
+      'Nah ini, Kita Mulai Call tiap hari, Chatan intens Setiap Hari,Sampe gue ngajak dia Jalan dan Makan Di salah satu Cafe Di tangerang, dan terus berlanjut dan kabar kabaran setiap hari, kita sama sama seneng banget disini seolah tanpa beban',
   },
+
   {
-    date: 'Juli 2026',
-    icon: '🎂',
-    title: 'Ulang Tahun Bersamamu',
+    date: '15 April 2026',
+    icon: '💕',
+    title: 'Jadian',
     description:
-      'Hari ulang tahun yang spesial karena ada kamu di sampingku. Setiap momen terasa lebih berharga.',
+      'Akhirnya Kita resmi Jadian, yeayy.. Awal mula Kisah kita Mulai , Dimana di sinilah segalanya Berubah, Kita jadi sering ketemu, Jalan Bareng, Makan Bareng, dan lain lain, Kita jadi lebih tau Kehidupan masing-masing, Dari yang baik dan buruk, Kita jadi sering berantem dan Miss Comunication, tapi kita tetep bisa baikan dan saling ngertiin satu sama lain, namun masalah yang datang bertubi tubi dan tidak henti menguji kesabaran kita, Nurunin Ego yang sama sama besar, Ngajakin-Putus Nyambung, Nangis, Sedih dan Kadang gak ada Waktu satu sama lain, Namun kita tetap bertahan dan tetep saling ngedukung satu sama lain, dan gue beneran seneng bisa punya hubungan yang sehat sama dia',
   },
+
+  {
+    date: 'Sekarang',
+    icon: '💙🤍',
+    title: 'Sampai Detik ini',
+    description:
+      'Walau banyak pertengkaran dan miss Comunication, namun Kita tetap bertahan dan tetep saling ngedukung satu sama lain, dan gue beneran seneng bisa punya hubungan yang sehat sama dia, Kita bener-bener Berusaha Fix The Trial and Error in our Relationship, dan gue yakin kita bisa jadi pribadi yang lebih baik lagi kedepannya, dan gue bakalan tetep ada buat Nadia, dan Gue beruntung banget nemu orang kayak Nadia, Walaupun dia cuek, nyolot, tapi dia tetep Nadiatusiyfa gue, cuma dia yang bikin gue se cinta mampus sama orang wkwk💙🤍',
+  },
+
   // ← tambahkan lebih banyak momen di sini!
 ];
 

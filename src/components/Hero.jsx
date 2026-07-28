@@ -34,12 +34,12 @@ const Hero = () => {
 
         {/* Tagline */}
         <p className="reveal font-dancing text-maroon-400 dark:text-dark-accent text-xl sm:text-2xl mb-2 tracking-wide">
-          ✦ Kisah Cinta Kita ✦
+          ✦ Hadiah Buat kamu ✦
         </p>
 
         {/* Names */}
         <h1 className="reveal font-dancing font-bold leading-none text-maroon-600 dark:text-dark-text"
-            style={{ fontSize: 'clamp(4rem, 14vw, 8rem)' }}>
+          style={{ fontSize: 'clamp(4rem, 14vw, 8rem)' }}>
           Nada
         </h1>
 
@@ -50,7 +50,7 @@ const Hero = () => {
         </div>
 
         <h1 className="reveal font-dancing font-bold leading-none text-maroon-500 dark:text-dark-accent"
-            style={{ fontSize: 'clamp(4rem, 14vw, 8rem)' }}>
+          style={{ fontSize: 'clamp(4rem, 14vw, 8rem)' }}>
           Nadia
         </h1>
 
@@ -59,7 +59,7 @@ const Hero = () => {
           <div className="stamp glass-card inline-flex items-center gap-3 px-6 py-3 rounded-2xl shadow-romantic">
             <span className="text-maroon-400 text-xl">📅</span>
             <div className="text-left">
-              <p className="font-lato text-xs text-maroon-400 uppercase tracking-widest">Tanggal Jadian</p>
+              <p className="font-lato text-xs text-maroon-400 uppercase tracking-widest">Nih inget Tanggal Jadian kita, lupa mulu lu nyet 😭</p>
               <p className="font-playfair font-semibold text-maroon-600 text-lg">15 April 2026</p>
             </div>
           </div>
@@ -67,7 +67,7 @@ const Hero = () => {
 
         {/* Ornament */}
         <div className="reveal ornament-line w-full max-w-xs mb-8">
-          <span className="font-dancing text-maroon-400 text-sm whitespace-nowrap">with love, always</span>
+          <span className="font-dancing text-maroon-400 text-sm whitespace-nowrap">      </span>
         </div>
 
         {/* Countdown Timer */}
@@ -77,7 +77,7 @@ const Hero = () => {
 
         {/* Scroll cue */}
         <div className="reveal mt-12 flex flex-col items-center gap-2 opacity-60">
-          <span className="font-lato text-xs text-maroon-400 uppercase tracking-widest">Scroll untuk kenangan kita</span>
+          <span className="font-lato text-xs text-maroon-400 uppercase tracking-widest">Coba Scroll ke Bawah ya Cantikkk!</span>
           <div className="flex flex-col gap-1">
             <span className="text-maroon-400 text-xs animate-bounce">▼</span>
           </div>
