@@ -6,9 +6,9 @@ import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from '
 const BASE = import.meta.env.BASE_URL;
 
 const PLAYLIST = [
-  { title: 'tapi-diterima', artist: 'Nadin Amizah', src: `${BASE}music/music.mp3` },
-  { title: 'semua-aku-dirayakan', artist: 'Nadin Amizah', src: `${BASE}music/song2.mp3` },
-  { title: 'kekal', artist: 'Nadin Amizah', src: `${BASE}music/song3.mp3` },
+  { title: 'Tapi Diterima',        artist: 'Nadin Amizah', src: `${BASE}music/tapi-diterima.mp3` },
+  { title: 'Semua Aku Dirayakan',  artist: 'Nadin Amizah', src: `${BASE}music/semua-aku-dirayakan.mp3` },
+  { title: 'Kekal',                artist: 'Nadin Amizah', src: `${BASE}music/kekal.mp3` },
 ];
 
 // ─────────────────────────────────────────────────────────────
