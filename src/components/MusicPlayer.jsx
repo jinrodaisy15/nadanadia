@@ -6,9 +6,9 @@ import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from '
 const BASE = import.meta.env.BASE_URL;
 
 const PLAYLIST = [
-  { title: 'semua-aku-dirayakan', artist: 'Nadin Amizah', src: `${BASE}music/music.mp3` },
-  // { title: 'Lagu Kedua',    artist: 'Artist',        src: `${BASE}music/song2.mp3` },
-  // { title: 'Lagu Ketiga',   artist: 'Artist',        src: `${BASE}music/song3.mp3` },
+  { title: 'tapi-diterima', artist: 'Nadin Amizah', src: `${BASE}music/music.mp3` },
+  { title: 'semua-aku-dirayakan', artist: 'Nadin Amizah', src: `${BASE}music/song2.mp3` },
+  { title: 'kekal', artist: 'Nadin Amizah', src: `${BASE}music/song3.mp3` },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -20,8 +20,8 @@ const EqBars = memo(({ playing }) => (
       <div
         key={i}
         className={`w-1 rounded-sm bg-cream-200 dark:bg-dark-text transition-all ${playing
-            ? i === 0 ? 'animate-eq-bar1' : i === 1 ? 'animate-eq-bar2' : 'animate-eq-bar3'
-            : ''
+          ? i === 0 ? 'animate-eq-bar1' : i === 1 ? 'animate-eq-bar2' : 'animate-eq-bar3'
+          : ''
           }`}
         style={{ height: playing ? undefined : '4px' }}
       />
