@@ -1,45 +1,61 @@
 import React, { useEffect, useRef, memo } from 'react';
 
 // ============================================================
-// EDIT TIMELINE DI SINI — tambah / hapus / ubah item sesuai kisah kalian!
+// EDIT TIMELINE DI SINI
+// description bisa berupa string biasa atau array string (untuk multi-paragraf)
 // ============================================================
 const TIMELINE_ITEMS = [
   {
-    date: 'Gatau Lupa Tanggalnya, Keknya antara 24-25 Desember 2025 deh pas Natalan',
+    date: 'Desember 2025',
     icon: '🎄',
-    title: 'First Time Ketemu di Roblox, iya ROBLOX',
-    description:
-      'GATAUUU WEHH, LUPA KETEMU GEGARA APA, POKOKNYA NADIA FRIENDLY DULUANN GEHHH WKWKWK😭 Kita bener bener baru kenal dan kita ngobrol soal Background awal masing masing disini, Gue cuek dan dia pun sama cueknya, kita gak saling peduli dan kita kebetulan sering se-Server ketika main di Map yang sama, dan KITA GAK PEDULI COY, se Random itu',
+    title: 'Pertama Kali Ketemu — di Roblox',
+    description: [
+      'Yap, beneran Roblox. Awalnya cuma numpang satu server bareng, terus lupa gimana bisa ngobrol.',
+      'Yang jelas, Nadia yang duluan friendly — dan gue masih cuek seperti biasa. Dia juga sama cueknya, jadi kita bener-bener cuma dua orang random yang kebetulan sering satu map.',
+      'Sesimpel itu awalnya. Gak ada yang nyangka bisa sampe sini.',
+    ],
   },
   {
-    date: '15-16 Februari 2026',
+    date: '15–16 Februari 2026',
     icon: '🌻',
-    title: 'Ketemuan Pertama Kali di Blok M',
-    description:
-      'Disini masih canggung, Ngobrol kadang kadang aja dan gue masih cuek bat sumpah, Dia makan siang sendirian dan gue cuma beli Dimsum Bakar doang anjir, akhirnya kita Ngobrol banyak di Blok M Hub dan gue pegang tangan dia, dan dia kelihatan Ilfeel wkwk, tapi akhirnya mau juga pegangan tangan sama gue di Taman Literasi dan sampe Pulang di Halte Transjakarta hehe',
+    title: 'Ketemu Pertama Kali — di Blok M',
+    description: [
+      'Masih canggung banget. Gue cuma beli dimsum bakar, dia makan siang sendirian.',
+      'Lama-lama kita mulai ngobrol lebih banyak di Blok M Hub. Gue coba pegang tangannya, dan dia kelihatan ilfeel — haha, tapi akhirnya mau juga.',
+      'Kita jalan bareng sampe Taman Literasi, terus pulang dari Halte Transjakarta. Sederhana, tapi berkesan.',
+    ],
   },
   {
-    date: 'Februari - April 2026',
+    date: 'Februari – April 2026',
     icon: '👉👈',
-    title: 'Masa PDKT (Trial 3 Bulan ceunah!!)',
-    description:
-      'Nah ini, Kita Mulai Call tiap hari, Chatan intens Setiap Hari,Sampe gue ngajak dia Jalan dan Makan Di salah satu Cafe Di tangerang, dan terus berlanjut dan kabar kabaran setiap hari, kita sama sama seneng banget disini seolah tanpa beban',
+    title: 'Masa PDKT — "Trial 3 Bulan"',
+    description: [
+      'Mulai dari sini kita sering call tiap hari dan chat hampir setiap saat.',
+      'Gue ngajak dia jalan-jalan dan makan di salah satu café di Tangerang. Terus jalan lagi, dan lagi.',
+      'Rasanya ringan banget, kayak gak ada beban sama sekali. Kita sama-sama seneng.',
+    ],
   },
-
   {
     date: '15 April 2026',
     icon: '💕',
     title: 'Jadian',
-    description:
-      'Akhirnya Kita resmi Jadian, yeayy.. Awal mula Kisah kita Mulai , Dimana di sinilah segalanya Berubah, Kita jadi sering ketemu, Jalan Bareng, Makan Bareng, dan lain lain, Kita jadi lebih tau Kehidupan masing-masing, Dari yang baik dan buruk, Kita jadi sering berantem dan Miss Comunication, tapi kita tetep bisa baikan dan saling ngertiin satu sama lain, namun masalah yang datang bertubi tubi dan tidak henti menguji kesabaran kita, Nurunin Ego yang sama sama besar, Ngajakin-Putus Nyambung, Nangis, Sedih dan Kadang gak ada Waktu satu sama lain, Namun kita tetap bertahan dan tetep saling ngedukung satu sama lain, dan gue beneran seneng bisa punya hubungan yang sehat sama dia',
+    description: [
+      'Akhirnya resmi. Dari sini segalanya mulai berubah — kita makin sering ketemu, jalan bareng, makan bareng.',
+      'Kita jadi lebih kenal satu sama lain, dari sisi yang baik sampai yang tidak. Ada pertengkaran, ada miskomunikasi, dan ego yang sama-sama besar.',
+      'Tapi kita selalu bisa baikan. Kita tetap bertahan, saling mendukung, dan belajar satu sama lain.',
+      'Dan gue beneran senang punya hubungan yang sehat seperti ini.',
+    ],
   },
-
   {
     date: 'Sekarang',
     icon: '💙🤍',
-    title: 'Sampai Detik ini',
-    description:
-      'Walau banyak pertengkaran dan miss Comunication, namun Kita tetap bertahan dan tetep saling ngedukung satu sama lain, dan gue beneran seneng bisa punya hubungan yang sehat sama dia, Kita bener-bener Berusaha Fix The Trial and Error in our Relationship, dan gue yakin kita bisa jadi pribadi yang lebih baik lagi kedepannya, dan gue bakalan tetep ada buat Nadia, dan Gue beruntung banget nemu orang kayak Nadia, Walaupun dia cuek, nyolot, tapi dia tetep Nadiatusiyfa gue, cuma dia yang bikin gue se cinta mampus sama orang wkwk💙🤍',
+    title: 'Sampai Detik Ini',
+    description: [
+      'Banyak yang sudah kita lalui — pertengkaran, miskomunikasi, putus-nyambung. Tapi kita selalu kembali.',
+      'Kita terus berusaha jadi lebih baik, nurunin ego masing-masing, dan saling ngerti.',
+      'Gue yakin kita bisa jadi versi terbaik satu sama lain.',
+      'Dan gue beneran beruntung punya Nadiatusiyfa — cuek, nyolot, tapi cuma dia yang bikin gue se-cinta ini sama seseorang. 💙🤍',
+    ],
   },
 
   // ← tambahkan lebih banyak momen di sini!
@@ -55,12 +71,10 @@ const TimelineItem = memo(({ item, index, isLeft }) => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
     if (!('IntersectionObserver' in window)) {
       el.classList.add('visible');
       return;
     }
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -68,37 +82,56 @@ const TimelineItem = memo(({ item, index, isLeft }) => {
           observer.disconnect();
         }
       },
-      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
+  // Support both string and array of paragraphs
+  const paragraphs = Array.isArray(item.description)
+    ? item.description
+    : [item.description];
+
   return (
     <div
       ref={ref}
-      className={`${revealClass} flex items-start gap-4 mb-12 ${isLeft ? 'flex-row' : 'flex-row-reverse'}`}
+      className={`${revealClass} flex items-start gap-4 mb-14 ${isLeft ? 'flex-row' : 'flex-row-reverse'}`}
       style={{ transitionDelay: `${index * 0.08}s` }}
     >
       {/* Card */}
       <div
-        className={`glass-card rounded-2xl p-5 shadow-card max-w-xs sm:max-w-sm flex-1
+        className={`glass-card rounded-2xl p-6 shadow-card flex-1
           border border-cream-300 dark:border-dark-border
           dark:shadow-dark-card
           ${isLeft ? 'text-left' : 'text-right'}`}
+        style={{ maxWidth: '340px' }}
       >
-        <div className={`flex items-center gap-2 mb-2 ${isLeft ? '' : 'flex-row-reverse'}`}>
-          <span className="text-2xl" aria-hidden="true">{item.icon}</span>
-          <span className="font-playfair font-semibold text-maroon-500 dark:text-dark-accent text-sm">
+        {/* Date + Icon */}
+        <div className={`flex items-center gap-2 mb-3 ${isLeft ? '' : 'flex-row-reverse'}`}>
+          <span className="text-xl" aria-hidden="true">{item.icon}</span>
+          <span className="font-lato font-semibold text-maroon-400 dark:text-dark-accent text-xs uppercase tracking-wider">
             {item.date}
           </span>
         </div>
-        <h3 className="font-dancing font-bold text-maroon-600 dark:text-dark-text text-2xl mb-1">
+
+        {/* Title */}
+        <h3 className="font-dancing font-bold text-maroon-600 dark:text-dark-text text-2xl mb-3 leading-snug">
           {item.title}
         </h3>
-        <p className="font-lato text-sm text-brown-800 dark:text-dark-muted leading-relaxed opacity-80">
-          {item.description}
-        </p>
+
+        {/* Description — per paragraph */}
+        <div className={`space-y-2 ${isLeft ? '' : 'text-right'}`}>
+          {paragraphs.map((para, i) => (
+            <p
+              key={i}
+              className="font-lato text-sm text-brown-800 dark:text-dark-muted leading-relaxed"
+              style={{ opacity: 0.82 }}
+            >
+              {para}
+            </p>
+          ))}
+        </div>
       </div>
 
       {/* Center dot */}
@@ -109,14 +142,14 @@ const TimelineItem = memo(({ item, index, isLeft }) => {
       </div>
 
       {/* Spacer for alternate side */}
-      <div className="flex-1 max-w-xs sm:max-w-sm hidden sm:block" />
+      <div className="flex-1 hidden sm:block" style={{ maxWidth: '340px' }} />
     </div>
   );
 });
 TimelineItem.displayName = 'TimelineItem';
 
 // ─────────────────────────────────────────────────────────────
-// Section header sub-component
+// Section header
 // ─────────────────────────────────────────────────────────────
 const SectionHeader = memo(() => {
   const ref = useRef(null);
@@ -136,8 +169,8 @@ const SectionHeader = memo(() => {
 
   return (
     <div ref={ref} className="reveal text-center mb-16">
-      <p className="font-dancing text-maroon-400 dark:text-dark-accent text-xl mb-1">Perjalanan Kita</p>
-      <h2 className="section-label">Timeline Cinta</h2>
+      <p className="font-dancing text-maroon-400 dark:text-dark-accent text-xl mb-1">Our Adventure</p>
+      <h2 className="section-label">Our Journey</h2>
       <div className="ornament-line max-w-xs mx-auto mt-3">
         <span className="text-maroon-400 dark:text-dark-accent text-sm">✦</span>
       </div>
