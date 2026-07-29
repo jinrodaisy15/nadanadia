@@ -10,9 +10,9 @@ const TIMELINE_ITEMS = [
     icon: '🎄',
     title: 'Pertama Kali Ketemu — di Roblox',
     description: [
-      'Yap, beneran Roblox. Awalnya cuma numpang satu server bareng, terus lupa gimana bisa ngobrol.',
-      'Yang jelas, Nadia yang duluan friendly — dan gue masih cuek seperti biasa. Dia juga sama cueknya, jadi kita bener-bener cuma dua orang random yang kebetulan sering satu map.',
-      'Sesimpel itu awalnya. Gak ada yang nyangka bisa sampe sini.',
+      'Yap, beneran Roblox. Awalnya cuma numpang satu server bareng, terus lupa gimana bisa ngobrol',
+      'Yang jelas, Nadia yang duluan friendly, dan gue masih cuek seperti biasa. Dia juga sama cueknya, jadi kita bener-bener cuma dua orang random yang kebetulan sering satu map',
+      'Sesimpel itu awalnya. Gak ada yang nyangka bisa sampe sini',
     ],
   },
   {
@@ -20,9 +20,9 @@ const TIMELINE_ITEMS = [
     icon: '🌻',
     title: 'Ketemu Pertama Kali — di Blok M',
     description: [
-      'Masih canggung banget. Gue cuma beli dimsum bakar, dia makan siang sendirian.',
-      'Lama-lama kita mulai ngobrol lebih banyak di Blok M Hub. Gue coba pegang tangannya, dan dia kelihatan ilfeel — haha, tapi akhirnya mau juga.',
-      'Kita jalan bareng sampe Taman Literasi, terus pulang dari Halte Transjakarta. Sederhana, tapi berkesan.',
+      'Masih canggung banget. Gue cuma beli dimsum bakar, dia makan siang sendirian dan gue tinggal sendirian di Blok M Hub wkwk',
+      'Lama-lama kita mulai ngobrol lebih banyak di Blok M Hub. Gue coba pegang tangannya, dan dia kelihatan ilfeel haha, tapi akhirnya mau juga',
+      'Kita jalan bareng sampe Taman Literasi, terus pulang dari Halte Transjakarta. Sederhana, tapi berkesan',
     ],
   },
   {
@@ -40,10 +40,10 @@ const TIMELINE_ITEMS = [
     icon: '💕',
     title: 'Jadian',
     description: [
-      'Akhirnya resmi. Dari sini segalanya mulai berubah — kita makin sering ketemu, jalan bareng, makan bareng.',
-      'Kita jadi lebih kenal satu sama lain, dari sisi yang baik sampai yang tidak. Ada pertengkaran, ada miskomunikasi, dan ego yang sama-sama besar.',
-      'Tapi kita selalu bisa baikan. Kita tetap bertahan, saling mendukung, dan belajar satu sama lain.',
-      'Dan gue beneran senang punya hubungan yang sehat seperti ini.',
+      'Akhirnya resmi. Dari sini segalanya mulai berubah, kita makin sering ketemu, jalan bareng, makan bareng, pergi ke berbagai macam tempat seperti Museum, Kebun Binatang, Taman dan yang pasti BLOK M wkwk',
+      'Kita jadi lebih kenal satu sama lain, dari sisi yang baik sampai yang tidak, Selalu ada pertengkaran, ada miskomunikasi, dan ego yang sama-sama besar',
+      'Tapi kita selalu bisa baikan lagi, perbaiki Komunikasi, Saling memaafkan, Putus-Nyambung, dan yang paling penting Kita tetap bertahan, saling mendukung, dan belajar satu sama lain',
+      'Gue beneran senang punya hubungan yang sehat seperti ini.',
     ],
   },
   {
@@ -51,10 +51,10 @@ const TIMELINE_ITEMS = [
     icon: '💙🤍',
     title: 'Sampai Detik Ini',
     description: [
-      'Banyak yang sudah kita lalui — pertengkaran, miskomunikasi, putus-nyambung. Tapi kita selalu kembali.',
-      'Kita terus berusaha jadi lebih baik, nurunin ego masing-masing, dan saling ngerti.',
-      'Gue yakin kita bisa jadi versi terbaik satu sama lain.',
-      'Dan gue beneran beruntung punya Nadiatusiyfa — cuek, nyolot, tapi cuma dia yang bikin gue se-cinta ini sama seseorang. 💙🤍',
+      'Banyak yang sudah kita lalui, pertengkaran, miskomunikasi, putus-nyambung',
+      'Kita terus berusaha jadi lebih baik, nurunin ego masing-masing, dan saling ngerti',
+      'Gue yakin kita bisa jadi versi terbaik satu sama lain, Kita berhasil menjadi dewasa and Fix the Trial and Error in Relationship',
+      'Dan gue beneran beruntung punya Nadiatusiyfa.... Kadang cuek, ngeselin, Manja, Lucu, cuma dia yang bikin gue se-cinta ini sama seseorang 💙🤍',
     ],
   },
 

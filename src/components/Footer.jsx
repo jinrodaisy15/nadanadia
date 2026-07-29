@@ -38,7 +38,7 @@ const Footer = () => {
 
         {/* Date */}
         <p className="font-playfair italic text-cream-300 text-lg mt-2 opacity-80">
-          Sejak 15 April 2026
+          Baca sampe habis yaa hehe
         </p>
 
         {/* Ornament */}
@@ -50,16 +50,16 @@ const Footer = () => {
 
         {/* Quote */}
         <p className="font-dancing text-cream-200 text-xl opacity-80 max-w-md mx-auto">
-          "Kamu adalah alasanku percaya pada cinta yang sesungguhnya."
+          "Kamu adalah alasanku percaya pada cinta yang sesungguhnya"
         </p>
 
         {/* Nav links */}
         <nav aria-label="Footer navigation">
           <ul className="flex flex-wrap justify-center gap-6 mt-8 list-none p-0">
             {[
-              { href: '#hero',        label: 'Beranda' },
-              { href: '#timeline',    label: 'Timeline' },
-              { href: '#gallery',     label: 'Galeri' },
+              { href: '#hero', label: 'Beranda' },
+              { href: '#timeline', label: 'Timeline' },
+              { href: '#gallery', label: 'Galeri' },
               { href: '#love-letter', label: 'Surat Cinta' },
             ].map(({ href, label }) => (
               <li key={href}>
@@ -76,7 +76,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <p className="font-lato text-xs text-cream-300 opacity-30 mt-8">
-          Made with ♥ — {currentYear}
+          — {currentYear}
         </p>
       </div>
     </footer>
