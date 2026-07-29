@@ -54,7 +54,7 @@ const TIMELINE_ITEMS = [
       'Banyak yang sudah kita lalui, pertengkaran, miskomunikasi, putus-nyambung',
       'Kita terus berusaha jadi lebih baik, nurunin ego masing-masing, dan saling ngerti',
       'Gue yakin kita bisa jadi versi terbaik satu sama lain, Kita berhasil menjadi dewasa and Fix the Trial and Error in Relationship',
-      'Dan gue beneran beruntung punya Nadiatusiyfa.... Kadang cuek, ngeselin, Manja, Lucu, cuma dia yang bikin gue se-cinta ini sama seseorang 💙🤍',
+      'Dan gue beneran beruntung punya Nadiatusyifa.... Kadang cuek, ngeselin, Manja, Lucu, cuma dia yang bikin gue se-cinta ini sama seseorang 💙🤍',
     ],
   },
 
