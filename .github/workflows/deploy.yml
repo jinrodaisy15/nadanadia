@@ -24,8 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
       - name: Build
         run: npm run build
+        env:
+          # Base path mengikuti nama repo agar cocok di GitHub Pages
+          BASE_PATH: /${{ github.event.repository.name }}/
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4

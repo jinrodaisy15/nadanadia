@@ -34,6 +34,7 @@ PhotoSkeleton.displayName = 'PhotoSkeleton';
 const PolaroidCard = memo(({ photo, index, onOpen, revealRef }) => {
   const cardRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const rotation = ROTATIONS[index % ROTATIONS.length];
 
   // 3D tilt on desktop
@@ -80,19 +81,33 @@ const PolaroidCard = memo(({ photo, index, onOpen, revealRef }) => {
         onKeyDown={(e) => e.key === 'Enter' && onOpen(photo)}
       >
         {/* Skeleton shown while loading */}
-        {!loaded && (
+        {!loaded && !failed && (
           <div className="skeleton" style={{ width: '100%', height: '180px', borderRadius: '2px' }} />
         )}
-        <img
-          src={photo.src}
-          alt={photo.caption || 'Kenangan bersama'}
-          loading="lazy"
-          className={`w-full object-cover rounded-sm transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0 absolute inset-0 w-0 h-0'}`}
-          style={{ minHeight: loaded ? '100px' : '0', maxHeight: '320px' }}
-          onLoad={() => setLoaded(true)}
-          onError={() => setLoaded(true)}
-        />
-        {loaded && photo.caption && (
+        {/* Fallback jika gambar gagal dimuat */}
+        {failed ? (
+          <div
+            className="w-full flex flex-col items-center justify-center gap-2 bg-cream-100 dark:bg-dark-card rounded-sm"
+            style={{ height: '180px' }}
+            aria-label="Foto tidak dapat dimuat"
+          >
+            <span className="text-3xl" aria-hidden="true">🖼️</span>
+            <span className="font-lato text-xs text-maroon-400 dark:text-dark-muted opacity-60">
+              Foto tidak dapat dimuat
+            </span>
+          </div>
+        ) : (
+          <img
+            src={photo.src}
+            alt={photo.caption || 'Kenangan bersama'}
+            loading="lazy"
+            className={`w-full object-cover rounded-sm transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0 absolute inset-0 w-0 h-0'}`}
+            style={{ minHeight: loaded ? '100px' : '0', maxHeight: '320px' }}
+            onLoad={() => setLoaded(true)}
+            onError={() => { setFailed(true); setLoaded(true); }}
+          />
+        )}
+        {loaded && !failed && photo.caption && (
           <p className="mt-2 text-center font-dancing text-sm text-maroon-500 dark:text-dark-accent px-1">
             {photo.caption}
           </p>
@@ -134,7 +149,8 @@ const Lightbox = memo(({ photos, currentIndex, onClose, onPrev, onNext }) => {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 50) {
-      dx < 0 ? onNext() : onPrev();
+      if (dx < 0) onNext();
+      else onPrev();
     }
     touchStartX.current = null;
   }, [onNext, onPrev]);
@@ -143,7 +159,7 @@ const Lightbox = memo(({ photos, currentIndex, onClose, onPrev, onNext }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-92 p-4 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4 animate-fade-in"
       onClick={onClose}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}

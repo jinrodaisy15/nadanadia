@@ -8,11 +8,12 @@ Website romantis berisi galeri kenangan, timeline perjalanan cinta, dan surat ci
 
 - 💑 **Hero Section** — Nama, tanggal jadian & countdown timer real-time
 - 📅 **Timeline** — Perjalanan kisah cinta yang bisa diedit di code
-- 📸 **Galeri Foto** — Upload foto langsung dari browser (polaroid style)
-- 💌 **Surat Cinta** — Pesan personal yang bisa diedit di code
-- 🎵 **Music Player** — Musik latar dengan play/pause & volume control
-- 💖 **Floating Hearts** — Animasi hati mengambang di background
+- 📸 **Galeri Foto** — Polaroid style dengan lightbox (klik/swipe untuk memperbesar)
+- 💌 **Surat Cinta** — Pesan personal yang bisa diedit di code, dengan animasi mesin tik
+- 🎵 **Music Player** — Musik latar dengan play/pause, shuffle, repeat & volume control
+- 🌙 **Dark Mode** — Toggle tema gelap/terang (tersimpan di browser)
 - 📱 **Responsive** — Tampil sempurna di HP maupun desktop
+- 📲 **PWA** — Bisa di-install ke home screen, service worker untuk offline
 
 ## 🚀 Cara Menjalankan
 
@@ -27,8 +28,10 @@ npm install
 # 3. Jalankan dev server
 npm run dev
 
-# 4. Buka di browser: http://localhost:5173
+# 4. Buka di browser: http://localhost:5173/nadanadia/
 ```
+
+> Base path default adalah `/nadanadia/` (lihat `vite.config.js`).
 
 ## 🎨 Cara Kustomisasi
 
@@ -57,34 +60,44 @@ const LOVE_LETTER = {
 };
 ```
 
+### Mengubah Tanggal Jadian
+Buka `src/components/CountdownTimer.jsx` dan ubah `ANNIVERSARY_DATE`
+(konstanta ini dipakai bersama oleh countdown timer dan badge tanggal di Hero).
+
 ### Menambah Musik
-Taruh file musik di `public/music/music.mp3`
+1. Taruh file mp3 di `public/music/`
+2. Daftarkan di array `PLAYLIST` dalam `src/components/MusicPlayer.jsx`
 
-### Upload Foto
-1. Buka website
-2. Scroll ke bagian **Galeri Kenangan**
-3. Klik "Pilih Foto" atau drag & drop
-4. Foto tersimpan otomatis di browser
+### Menambah Foto
+1. Upload foto ke `public/photos/`
+2. Tambahkan ke array `STATIC_PHOTOS` dalam `src/components/Gallery.jsx`
 
-## 🌐 Deploy ke GitHub Pages
+## 🌐 Deploy
 
-### Otomatis (via GitHub Actions)
+### GitHub Pages (otomatis via GitHub Actions)
+Workflow di `.github/workflows/deploy.yml` build & deploy ke **branch `gh-pages`**:
 1. Push code ke branch `main`
 2. Pergi ke **Settings → Pages**
-3. Set source ke **GitHub Actions**
+3. Set source ke **Deploy from a branch** → branch `gh-pages` / `/ (root)`
 4. Website akan build & deploy otomatis!
 
-### Update nama repo
-Buka `vite.config.js` dan ubah:
-```js
-const GITHUB_REPO_NAME = 'nama-repo-kamu'
+Base path otomatis mengikuti nama repo (`BASE_PATH=/<nama-repo>/` di-set oleh workflow).
+
+### Vercel
+Vercel otomatis terdeteksi (`VERCEL` env) → base path `/`. Tidak perlu konfigurasi tambahan.
+
+### Base path manual
+Jika butuh base path lain, set environment variable saat build:
+```bash
+BASE_PATH=/nama-path/ npm run build
 ```
 
 ## 🛠️ Tech Stack
 
-- **React 18** + **Vite**
+- **React 19** + **Vite**
 - **Tailwind CSS v3**
 - **Google Fonts** — Dancing Script, Playfair Display, Lato
+- **oxlint** untuk linting
 
 ---
 

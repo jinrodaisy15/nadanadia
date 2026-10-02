@@ -48,6 +48,7 @@ const ProgressBar = memo(({ audioRef, onSeek }) => {
       if (audio && audio.duration > 0) {
         const pct = (audio.currentTime / audio.duration) * 100;
         fill.style.width = `${pct}%`;
+        bar.setAttribute('aria-valuenow', String(Math.round(pct)));
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -210,25 +211,45 @@ const MusicPlayer = () => {
     setShowList(false);
   }, []);
 
+  // Putar ulang lagu saat ini dari awal; jika sudah selesai (ended), langsung play lagi
+  const restartCurrent = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    if (audio.ended) {
+      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  }, []);
+
   const goPrev = useCallback(() => {
     const audio = audioRef.current;
-    if (audio && audio.currentTime > 3) { audio.currentTime = 0; return; }
+    if (audio && (audio.currentTime > 3 || audio.ended)) { restartCurrent(); return; }
     if (shuffle) {
       const curPos = shuffleOrder.indexOf(trackIndex);
       setTrackIndex(shuffleOrder[(curPos - 1 + shuffleOrder.length) % shuffleOrder.length]);
+    } else if (trackIndex === 0) {
+      // Di lagu pertama — restart lagu, bukan no-op
+      restartCurrent();
     } else {
-      setTrackIndex(i => Math.max(0, i - 1));
+      setTrackIndex(trackIndex - 1);
     }
-  }, [shuffle, shuffleOrder, trackIndex]);
+  }, [shuffle, shuffleOrder, trackIndex, restartCurrent]);
 
   const goNext = useCallback(() => {
     if (shuffle) {
       const curPos = shuffleOrder.indexOf(trackIndex);
       setTrackIndex(shuffleOrder[(curPos + 1) % shuffleOrder.length]);
+    } else if (trackIndex >= PLAYLIST.length - 1) {
+      if (repeat === 'all') {
+        setTrackIndex(0);
+      } else {
+        // Lagu terakhir tanpa repeat — putar ulang lagu ini dari awal
+        restartCurrent();
+      }
     } else {
-      setTrackIndex(i => Math.min(PLAYLIST.length - 1, i + 1));
+      setTrackIndex(trackIndex + 1);
     }
-  }, [shuffle, shuffleOrder, trackIndex]);
+  }, [shuffle, shuffleOrder, trackIndex, repeat, restartCurrent]);
 
   const toggleRepeat = useCallback(() => {
     setRepeat(r => r === 'none' ? 'all' : r === 'all' ? 'one' : 'none');

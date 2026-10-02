@@ -2,9 +2,10 @@
 // Cache-first for static assets, network-first for HTML
 
 const CACHE_NAME = 'nn-cache-v1';
+// Path relatif terhadap lokasi script SW — base path apa pun tetap cocok
 const STATIC_ASSETS = [
-  '/nadanadia/',
-  '/nadanadia/index.html',
+  './',
+  './index.html',
 ];
 
 // Install — pre-cache shell

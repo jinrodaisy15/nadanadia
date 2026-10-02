@@ -3,8 +3,11 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // Jika Vercel, gunakan root '/'. Jika bukan (misal GitHub Pages), gunakan '/nadanadia/'
-  base: process.env.VERCEL ? '/' : '/nadanadia/',
+  // Base path bisa dioverride lewat env BASE_PATH (mis. GitHub Pages: /<nama-repo>/).
+  // Vercel -> '/', selain itu default '/nadanadia/'.
+  base:
+    process.env.BASE_PATH ||
+    (process.env.VERCEL ? '/' : '/nadanadia/'),
   build: {
     rollupOptions: {
       output: {

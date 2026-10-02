@@ -1,5 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import CountdownTimer from './CountdownTimer';
+import CountdownTimer, { ANNIVERSARY_DATE } from './CountdownTimer';
+
+// Satu sumber kebenaran untuk tanggal jadian (lihat CountdownTimer.jsx)
+const ANNIVERSARY_LABEL = ANNIVERSARY_DATE.toLocaleDateString('id-ID', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
 
 const Hero = () => {
   const ref = useRef(null);
@@ -7,9 +14,11 @@ const Hero = () => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const timeouts = [];
     el.querySelectorAll('.reveal').forEach((node, i) => {
-      setTimeout(() => node.classList.add('visible'), i * 200 + 100);
+      timeouts.push(setTimeout(() => node.classList.add('visible'), i * 200 + 100));
     });
+    return () => timeouts.forEach(clearTimeout);
   }, []);
 
   return (
@@ -60,7 +69,7 @@ const Hero = () => {
             <span className="text-maroon-400 text-xl">📅</span>
             <div className="text-left">
               <p className="font-lato text-xs text-maroon-400 uppercase tracking-widest">Nih inget Tanggal Jadian kita, lupa mulu lu nyet 😭</p>
-              <p className="font-playfair font-semibold text-maroon-600 text-lg">15 April 2026</p>
+              <p className="font-playfair font-semibold text-maroon-600 text-lg">{ANNIVERSARY_LABEL}</p>
             </div>
           </div>
         </div>

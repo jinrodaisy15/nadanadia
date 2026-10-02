@@ -5,7 +5,14 @@ const ThemeContext = createContext({ isDark: false, toggleTheme: () => {} });
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
     try {
-      return localStorage.getItem('nn-theme') === 'dark';
+      const stored = localStorage.getItem('nn-theme');
+      if (stored) return stored === 'dark';
+    } catch {
+      /* localStorage tidak tersedia */
+    }
+    // Belum ada preferensi tersimpan — ikuti sistem
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     } catch {
       return false;
     }

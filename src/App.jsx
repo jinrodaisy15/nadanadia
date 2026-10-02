@@ -64,7 +64,9 @@ const DarkToggle = () => {
 // Minimalist Navbar
 // =====================================================================
 const Navbar = React.memo(() => {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(
+    () => typeof window !== 'undefined' && window.scrollY > 60
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   const onScroll = useCallback(() => {
