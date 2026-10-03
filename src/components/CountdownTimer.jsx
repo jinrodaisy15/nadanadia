@@ -13,10 +13,14 @@ const calendarDiff = (from, to) => {
   let years = to.getFullYear() - from.getFullYear();
   let months = to.getMonth() - from.getMonth();
   let days = to.getDate() - from.getDate();
-  if (days < 0) {
+  // Pinjam bulan selama hari masih negatif — bisa butuh 2× pinjaman
+  // (mis. dari tgl 31 menuju 1 Maret), jadi pakai loop, bukan sekali
+  let back = 1;
+  while (days < 0) {
     months -= 1;
-    // Jumlah hari pada bulan sebelum bulan `to`
-    days += new Date(to.getFullYear(), to.getMonth(), 0).getDate();
+    // Jumlah hari pada bulan sebelum bulan `to` yang sedang dipinjam
+    days += new Date(to.getFullYear(), to.getMonth() - back + 1, 0).getDate();
+    back += 1;
   }
   if (months < 0) {
     years -= 1;

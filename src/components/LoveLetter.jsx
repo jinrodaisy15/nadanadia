@@ -202,8 +202,7 @@ const LoveLetter = () => {
       <div className="max-w-2xl mx-auto">
         {/* Section header */}
         <div ref={sectionRef} className="reveal text-center mb-12">
-          <p className="font-dancing text-maroon-400 dark:text-dark-accent text-xl mb-1">Dari Hati</p>
-          <h2 className="section-label">Surat Cinta</h2>
+          <h2 className="font-dancing text-maroon-400 dark:text-dark-accent text-2xl sm:text-3xl">coba buka deh, baca baik baik yhhh hihihi</h2>
           <div className="ornament-line max-w-xs mx-auto mt-3">
             <span className="text-maroon-400 dark:text-dark-accent text-sm">💌</span>
           </div>

@@ -80,7 +80,7 @@ const Navbar = React.memo(() => {
     { href: '#hero',        label: 'Beranda' },
     { href: '#timeline',    label: 'Timeline' },
     { href: '#gallery',     label: 'Galeri' },
-    { href: '#love-letter', label: 'Surat Cinta' },
+    { href: '#love-letter', label: 'mw baca ga?' },
   ];
 
   return (
