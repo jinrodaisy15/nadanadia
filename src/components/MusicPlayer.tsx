@@ -11,6 +11,7 @@ const PLAYLIST: readonly Track[] = [
   { title: 'Tapi Diterima',       artist: 'Nadin Amizah', src: `${BASE}music/tapi-diterima.mp3` },
   { title: 'Semua Aku Dirayakan', artist: 'Nadin Amizah', src: `${BASE}music/semua-aku-dirayakan.mp3` },
   { title: 'Kekal',               artist: 'Nadin Amizah', src: `${BASE}music/kekal.mp3` },
+  { title: 'drop dead [Explicit]', artist: 'Olivia Rodrigo', src: `${BASE}music/drop-dead.mp3` },
 ];
 
 // ─────────────────────────────────────────────────────────────
