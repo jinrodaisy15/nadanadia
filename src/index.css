@@ -203,24 +203,12 @@ body {
   transform: rotateX(-180deg);
 }
 
-/* ===== TYPEWRITER ===== */
-.typewriter-text {
-  overflow: hidden;
-  white-space: pre-wrap;
-  opacity: 0;
-}
-.typewriter-text.typing {
-  opacity: 1;
-}
-.typewriter-cursor::after {
-  content: '|';
-  display: inline-block;
-  animation: blink 0.8s step-end infinite;
-  color: var(--accent2);
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+/* Keep the letter comfortable to read with reduced motion enabled. */
+@media (prefers-reduced-motion: reduce) {
+  #love-letter *, #love-letter *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ===== CONFETTI ===== */

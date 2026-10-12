@@ -24,7 +24,8 @@
     <!-- Terapkan tema tersimpan SEBELUM paint (anti-FOUC) -->
     <script>
       try {
-        if (localStorage.getItem('nn-theme') === 'dark') {
+        const theme = localStorage.getItem('nn-theme');
+        if (theme === 'dark' || (theme !== 'light' && window.matchMedia?.('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark');
         }
       } catch (e) { /* ignore */ }
@@ -34,6 +35,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

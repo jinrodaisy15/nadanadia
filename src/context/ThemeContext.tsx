@@ -1,12 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, type PropsWithChildren } from 'react';
+import { ThemeContext } from './theme';
 
-const ThemeContext = createContext({ isDark: false, toggleTheme: () => {} });
-
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider = ({ children }: PropsWithChildren) => {
   const [isDark, setIsDark] = useState(() => {
     try {
       const stored = localStorage.getItem('nn-theme');
-      if (stored) return stored === 'dark';
+      if (stored === 'dark' || stored === 'light') return stored === 'dark';
     } catch {
       /* localStorage tidak tersedia */
     }
@@ -34,14 +33,13 @@ export const ThemeProvider = ({ children }) => {
     if (meta) meta.setAttribute('content', isDark ? '#1B1212' : '#8B1A1A');
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark(d => !d);
+  const toggleTheme = useCallback(() => setIsDark(d => !d), []);
+  const value = useMemo(() => ({ isDark, toggleTheme }), [isDark, toggleTheme]);
 
   return (
-    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
-export const useTheme = () => useContext(ThemeContext);
-export default ThemeContext;

@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el || !('IntersectionObserver' in window)) { el?.classList.add('visible'); return; }
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
+      ([e]) => { if (e?.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
       { threshold: 0.1 }
     );
     obs.observe(el);

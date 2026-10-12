@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import CountdownTimer, { ANNIVERSARY_DATE } from './CountdownTimer';
+import { useEffect, useRef } from 'react';
+import CountdownTimer from './CountdownTimer';
+import { ANNIVERSARY_DATE } from '../data/anniversary';
 
-// Satu sumber kebenaran untuk tanggal jadian (lihat CountdownTimer.jsx)
+// Satu sumber kebenaran untuk tanggal jadian (lihat ../data/anniversary.ts)
 const ANNIVERSARY_LABEL = ANNIVERSARY_DATE.toLocaleDateString('id-ID', {
   day: 'numeric',
   month: 'long',
@@ -9,12 +10,12 @@ const ANNIVERSARY_LABEL = ANNIVERSARY_DATE.toLocaleDateString('id-ID', {
 });
 
 const Hero = () => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const timeouts = [];
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
     el.querySelectorAll('.reveal').forEach((node, i) => {
       timeouts.push(setTimeout(() => node.classList.add('visible'), i * 200 + 100));
     });

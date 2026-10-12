@@ -1,5 +1,6 @@
-import React, { useState, useCallback, lazy, Suspense } from 'react';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import React, { useState, useCallback, lazy, Suspense, type PropsWithChildren, type ErrorInfo } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
+import { useTheme } from './context/theme';
 import { useScrollThrottle } from './hooks/useThrottle';
 import Hero from './components/Hero';
 import Timeline from './components/Timeline';
@@ -13,13 +14,13 @@ const MusicPlayer = lazy(() => import('./components/MusicPlayer'));
 // =====================================================================
 // Error Boundary
 // =====================================================================
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+class ErrorBoundary extends React.Component<PropsWithChildren, { hasError: boolean }> {
+  constructor(props: PropsWithChildren) {
     super(props);
     this.state = { hasError: false };
   }
   static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch(error, info) { console.error('[ErrorBoundary]', error, info); }
+  componentDidCatch(error: Error, info: ErrorInfo) { console.error('[ErrorBoundary]', error, info); }
   render() {
     if (this.state.hasError) {
       return (
@@ -155,7 +156,6 @@ Navbar.displayName = 'Navbar';
 function AppContent() {
   return (
     <div className="relative min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
-      {/* FloatingHearts removed for cleaner look */}
       <Navbar />
 
       <main>

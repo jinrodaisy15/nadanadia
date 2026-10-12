@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 // ============================================================
 // TANGGAL JADIAN — ubah di sini jika perlu (satu sumber kebenaran,
 // dipakai juga oleh Hero)
 // ============================================================
-export const ANNIVERSARY_DATE = new Date('2026-04-15T00:00:00');
+import { ANNIVERSARY_DATE } from '../data/anniversary';
 
-const pad = (n) => String(n).padStart(2, '0');
+type Elapsed = { hours: number; minutes: number; seconds: number; days: number } & (
+  | { mode: 'countdown' }
+  | { mode: 'together'; years: number; months: number }
+);
+
+const pad = (n: number) => String(n).padStart(2, '0');
 
 // Selisih kalender akurat (tahun/bulan/hari) — bukan pembulatan 365/30 hari
-const calendarDiff = (from, to) => {
+const calendarDiff = (from: Date, to: Date) => {
   let years = to.getFullYear() - from.getFullYear();
   let months = to.getMonth() - from.getMonth();
   let days = to.getDate() - from.getDate();
@@ -30,7 +35,7 @@ const calendarDiff = (from, to) => {
 };
 
 // ── Didefinisikan di module scope supaya tidak di-remount tiap detik ──
-const BoxItem = ({ value, label }) => (
+const BoxItem = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center gap-1">
     <div className="counter-box rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center shadow-romantic">
       <span className="font-playfair font-bold text-2xl sm:text-3xl text-cream-100 tabular-nums">
@@ -43,20 +48,20 @@ const BoxItem = ({ value, label }) => (
   </div>
 );
 
-const Colon = ({ tick }) => (
+const Colon = ({ tick }: { tick: boolean }) => (
   <span className={`font-playfair text-2xl sm:text-3xl text-maroon-400 dark:text-dark-accent font-bold mb-5 transition-opacity duration-300 ${tick ? 'opacity-100' : 'opacity-30'}`}>
     :
   </span>
 );
 
 const CountdownTimer = () => {
-  const [elapsed, setElapsed] = useState(null);
+  const [elapsed, setElapsed] = useState<Elapsed | null>(null);
   const [tick, setTick] = useState(false);
 
   useEffect(() => {
-    const calculate = () => {
+    const calculate = (): Elapsed => {
       const now   = new Date();
-      const diff  = now - ANNIVERSARY_DATE; // ms since anniversary
+      const diff  = now.getTime() - ANNIVERSARY_DATE.getTime(); // ms since anniversary
 
       if (diff < 0) {
         // Before anniversary — countdown TO the date

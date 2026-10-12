@@ -1,46 +1,54 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { LazyMotion, domAnimation, useReducedMotion } from 'motion/react';
+import BlurText from './BlurText';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 // ============================================================
 // EDIT SURAT CINTA DI SINI
 // ============================================================
-const LOVE_LETTER = {
-  greeting: 'Untuk Nadia Tersayangku,',
+type LoveLetterContent = { greeting: string; paragraphs: readonly string[]; closing: string; signature: string };
+
+const LOVE_LETTER: LoveLetterContent = {
+  greeting: 'happy birthday, perempuan kesayanganku! 🎂❤️',
   paragraphs: [
-    `Kalau ada satu hal yang ingin aku syukuri dalam hidupku, itu adalah momen di mana kamu hadir dan mengubah segalanya menjadi lebih berwarna. Kamu bukan sekadar pacar — kamu adalah rumah yang selalu ingin aku pulang.`,
-    `Setiap petualangan yang kita lalui bersama, setiap tawa yang kita bagi, setiap momen kecil yang mungkin terasa biasa, semuanya menjadi kenangan yang sangat berharga ketika bersamamu. Kamu membuat hal sederhana terasa luar biasa.`,
-    `Aku tidak tahu bagaimana caranya tidak mencintaimu. Kamu sudah terlalu dalam meresap di setiap bagian hidupku. Dan aku bahagia dengan itu — sangat bahagia.`,
-    `Terima kasih sudah ada. Terima kasih sudah mau berjalan bersamaku, meski jalannya kadang tidak mulus. Aku berjanji akan selalu ada untukmu, dalam setiap babak cerita kita.`,
+    `selamat bertambah usia yaa, sayanggg. cieee, makin tua aja nih pacar aku WKWKWK 😭❤️ tapi gapapa, mau umur kamu bertambah berapa pun, semoga aku masih jadi orang yang bisa nemenin kamu di banyak ulang tahun berikutnya, yaa. aamiinnn paling serius! 🫵🏻🤍`,
+    `sayang, terima kasih udah hadir di hidup aku dan jadi bagian dari banyak cerita yang sekarang punya tempat tersendiri di hati aku. dari obrolan random kita, candaan receh yang kadang nggak lucu-lucu amat, momen kita ketawa bareng, sampai hal-hal sederhana yang mungkin kelihatannya biasa aja, semuanya punya keindahan tersendiri buat aku. ternyata bahagia nggak selalu harus tentang hal besar, kadang cukup bisa menghabiskan waktu sama kamu aja udah jadi salah satu bagian manis dari hari-hari aku. 🥹🫶🏻`,
+    `aku tahu kita nggak selalu punya hari yang sempurna. kadang kita beda pendapat, salah paham, atau belum bisa mengerti satu sama lain dengan baik. tapi aku berharap semua yang udah kita lewati bisa membuat kita semakin belajar mengenal, memahami, dan menyayangi satu sama lain. aku nggak minta kita jadi pasangan yang sempurna, aku cuma berharap kita bisa terus bertumbuh bersama dan tetap punya alasan untuk memilih satu sama lain. ❤️`,
+    `di umur kamu yang baru ini, aku berdoa semoga kamu selalu sehat, bahagia, dilancarkan segala urusannya, dimudahkan rezekinya, dan satu per satu impian kamu bisa terwujud. semoga hal-hal yang kamu khawatirkan diganti dengan ketenangan, doa-doa yang kamu simpan diam-diam menemukan jalannya, dan kamu selalu dikelilingi orang-orang yang tulus menyayangi kamu. jangan terlalu keras sama diri sendiri yaa, sayang. kamu juga pantas istirahat, merasa tenang, dan bahagia. 🤍`,
+    `dan buat kita, semoga masih ada banyak cerita yang bisa kita tulis bareng. lebih banyak tempat yang kita kunjungi, makanan yang kita cobain, foto-foto yang nanti kita lihat sambil bilang "ih, dulu kita begini banget yaa", dan tawa-tawa kecil yang suatu hari bakal kita rindukan. semoga kalau nanti kita melihat ke belakang, kita bisa tersenyum karena ternyata ada begitu banyak momen indah yang pernah kita lewati bersama. 🫶🏻`,
+    `sekali lagi, happy birthday, sayangkuuu! makasih udah lahir ke dunia, makasih udah jadi kamu, dan makasih karena aku punya kesempatan buat mengenal dan menyayangi kamu. semoga hari ini kamu bahagia, semoga hari-hari kamu ke depannya jauh lebih baik, dan semoga aku masih bisa ikut merayakan banyak kebahagiaan kamu berikutnya.`,
+    `i love you, my favorite girl. jangan lupa bahagia, jangan lupa makan, jangan suka ngambek terus yaa—eh yang terakhir bercanda, WKWKWK 😭💗`,
   ],
-  closing: 'Dengan seluruh cintaku,',
+  closing: "you deserve all the beautiful things in this world, sayang. happy birthday, and i'm so glad you were born. 🎂💐❤️",
   signature: 'Nada ♥',
 };
 
 // ─────────────────────────────────────────────────────────────
 // Canvas confetti
 // ─────────────────────────────────────────────────────────────
-const runConfetti = (canvas) => {
+const runConfetti = (canvas: HTMLCanvasElement | null) => {
   if (!canvas) return () => {};
   const ctx = canvas.getContext('2d');
+  if (!ctx) return () => {};
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
   const colors = ['#8B1A1A', '#C0392B', '#F0A0A0', '#F5EDD8', '#E8B04A', '#fff'];
   const shapes = ['♥', '✦', '●', '★'];
-  const particles = Array.from({ length: 80 }, () => ({
+  const particles = Array.from({ length: 40 }, () => ({
     x: Math.random() * canvas.width,
     y: -20 - Math.random() * 100,
     vx: (Math.random() - 0.5) * 3,
     vy: 2 + Math.random() * 3,
     rot: Math.random() * 360,
     rotV: (Math.random() - 0.5) * 8,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    shape: shapes[Math.floor(Math.random() * shapes.length)],
+    color: colors[Math.floor(Math.random() * colors.length)] ?? '#fff',
+    shape: shapes[Math.floor(Math.random() * shapes.length)] ?? '♥',
     size: 10 + Math.random() * 14,
     opacity: 1,
   }));
 
-  let frame;
+  let frame = 0;
   const tick = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let alive = false;
@@ -65,64 +73,16 @@ const runConfetti = (canvas) => {
     else ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
   frame = requestAnimationFrame(tick);
-  return () => cancelAnimationFrame(frame);
+  return () => {
+    cancelAnimationFrame(frame);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
 };
-
-// ─────────────────────────────────────────────────────────────
-// Typewriter — completely self-contained, no prop callbacks
-// Receives: text, startSignal (boolean), onFinished (stable ref)
-// ─────────────────────────────────────────────────────────────
-const TypewriterParagraph = memo(({ text, active, showCursor, onFinished }) => {
-  const [displayed, setDisplayed] = useState('');
-  const doneRef = useRef(false);
-  const onFinishedRef = useRef(onFinished);
-
-  // Keep ref in sync without adding to deps
-  useEffect(() => { onFinishedRef.current = onFinished; }, [onFinished]);
-
-  useEffect(() => {
-    if (!active) return;
-    // Reset for this paragraph
-    setDisplayed('');
-    doneRef.current = false;
-    let idx = 0;
-
-    const interval = setInterval(() => {
-      idx++;
-      setDisplayed(text.slice(0, idx));
-      if (idx >= text.length) {
-        clearInterval(interval);
-        if (!doneRef.current) {
-          doneRef.current = true;
-          // Small delay before triggering next paragraph
-          setTimeout(() => onFinishedRef.current?.(), 300);
-        }
-      }
-    }, 20);
-
-    return () => clearInterval(interval);
-  }, [active, text]); // only re-run when `active` flips to true or text changes
-
-  const isDone = displayed.length >= text.length;
-
-  return (
-    <p
-      className="font-lato text-brown-800 dark:text-dark-muted leading-8 text-base mb-4"
-      style={{ textIndent: '2em', minHeight: '32px' }}
-    >
-      {displayed}
-      {showCursor && !isDone && (
-        <span className="typewriter-cursor" aria-hidden="true" />
-      )}
-    </p>
-  );
-});
-TypewriterParagraph.displayName = 'TypewriterParagraph';
 
 // ─────────────────────────────────────────────────────────────
 // Envelope SVG
 // ─────────────────────────────────────────────────────────────
-const EnvelopeSVG = memo(({ isOpen }) => (
+const EnvelopeSVG = memo(({ isOpen }: { isOpen: boolean }) => (
   <div className="relative w-32 h-24 mx-auto select-none" style={{ perspective: '800px' }}>
     <svg viewBox="0 0 128 88" fill="none" className="absolute inset-0 w-full h-full drop-shadow-xl">
       <rect width="128" height="88" rx="6" fill="#8B1A1A" />
@@ -160,39 +120,25 @@ EnvelopeSVG.displayName = 'EnvelopeSVG';
 // Main LoveLetter Component
 // ─────────────────────────────────────────────────────────────
 const LoveLetter = () => {
-  // phase: 'closed' | 'open' | 'typing' | 'done'
-  const [phase, setPhase] = useState('closed');
-  // which paragraph index is currently being typed
-  const [activeIdx, setActiveIdx] = useState(0);
-  const canvasRef = useRef(null);
+  // The full letter mounts once after the envelope opens; paragraphs reveal on scroll.
+  const [phase, setPhase] = useState<'closed' | 'opening' | 'open'>('closed');
+  const [celebrate, setCelebrate] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const sectionRef = useIntersectionObserver({ threshold: 0.2 });
 
-  const handleEnvelopeClick = useCallback(() => {
-    if (phase !== 'closed') return;
-    // Start opening animation
-    setPhase('open');
-    // After envelope opens, start letter slide + typing
-    setTimeout(() => {
-      setPhase('typing');
-      setActiveIdx(0);
-    }, 900);
-  }, [phase]);
+  useEffect(() => {
+    if (phase !== 'opening') return;
+    const timer = setTimeout(() => setPhase('open'), reduceMotion ? 0 : 700);
+    return () => clearTimeout(timer);
+  }, [phase, reduceMotion]);
 
-  // Called when paragraph i finishes typing
-  const handleParagraphDone = useCallback((idx) => {
-    const next = idx + 1;
-    if (next < LOVE_LETTER.paragraphs.length) {
-      setActiveIdx(next);
-    } else {
-      setPhase('done');
-      setTimeout(() => {
-        const canvas = canvasRef.current;
-        if (canvas) runConfetti(canvas);
-      }, 200);
-    }
-  }, []);
+  useEffect(() => {
+    if (!celebrate || reduceMotion) return;
+    return runConfetti(canvasRef.current);
+  }, [celebrate, reduceMotion]);
 
-  const isLetterVisible = phase === 'typing' || phase === 'done';
+  const handleLetterComplete = useCallback(() => setCelebrate(true), []);
 
   return (
     <section id="love-letter" className="py-24 px-4 relative">
@@ -210,16 +156,17 @@ const LoveLetter = () => {
 
         {/* Envelope */}
         <div className="flex flex-col items-center mb-8">
-          <div
-            className={`transition-all duration-500 ${phase === 'closed' ? 'cursor-pointer hover:scale-105 animate-sway' : ''}`}
-            onClick={handleEnvelopeClick}
-            role={phase === 'closed' ? 'button' : 'presentation'}
-            tabIndex={phase === 'closed' ? 0 : -1}
-            onKeyDown={(e) => e.key === 'Enter' && handleEnvelopeClick()}
-            aria-label={phase === 'closed' ? 'Klik untuk membuka surat cinta' : undefined}
+          <button
+            type="button"
+            className={`rounded-lg transition-transform duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-maroon-400 ${phase === 'closed' ? 'cursor-pointer hover:scale-105 motion-safe:animate-sway' : ''}`}
+            onClick={() => setPhase('opening')}
+            disabled={phase !== 'closed'}
+            aria-expanded={phase === 'open'}
+            aria-controls="birthday-letter"
+            aria-label="Klik untuk membuka surat cinta"
           >
             <EnvelopeSVG isOpen={phase !== 'closed'} />
-          </div>
+          </button>
           {phase === 'closed' && (
             <p className="mt-4 font-dancing text-maroon-400 dark:text-dark-accent text-lg animate-pulse-heart">
               ✦ Klik untuk membuka ✦
@@ -227,14 +174,9 @@ const LoveLetter = () => {
           )}
         </div>
 
-        {/* Letter paper — slides in when opened */}
-        <div
-          className={`transition-all duration-700 ease-out ${
-            isLetterVisible
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-8 pointer-events-none'
-          }`}
-        >
+        {/* Reserve all paragraph space immediately, avoiding shifts while reading. */}
+        {phase === 'open' && <LazyMotion features={domAnimation} strict>
+        <div id="birthday-letter">
           <div className="letter-paper rounded-2xl p-8 sm:p-12 shadow-card relative overflow-hidden border border-cream-300 dark:border-dark-border">
             {/* Corner ornaments */}
             {['tl', 'tr', 'bl', 'br'].map(pos => (
@@ -263,42 +205,21 @@ const LoveLetter = () => {
                 {LOVE_LETTER.greeting}
               </p>
 
-              {/* Render each paragraph; only `active` one types, previous ones show full text */}
-              {LOVE_LETTER.paragraphs.map((para, i) => {
-                // Before typing starts, show nothing
-                if (phase === 'closed' || phase === 'open') return null;
-                // If paragraph index hasn't been reached yet, don't render
-                if (i > activeIdx && phase !== 'done') return null;
-
-                // If we're done, show all paragraphs as plain text
-                if (phase === 'done' || i < activeIdx) {
-                  return (
-                    <p
-                      key={i}
-                      className="font-lato text-brown-800 dark:text-dark-muted leading-8 text-base mb-4"
-                      style={{ textIndent: '2em' }}
-                    >
-                      {para}
-                    </p>
-                  );
-                }
-
-                // Current active paragraph — typewriter
-                return (
-                  <TypewriterParagraph
+              {LOVE_LETTER.paragraphs.map((para, i) => (
+                  <BlurText
                     key={i}
                     text={para}
-                    active={true}
-                    showCursor={true}
-                    onFinished={() => handleParagraphDone(i)}
+                    className="font-lato text-brown-800 dark:text-dark-muted leading-8 text-base mb-4"
+                    emphasis={i === 5 ? 'sekali lagi, happy birthday, sayangkuuu!' : ''}
                   />
-                );
-              })}
+              ))}
 
-              {/* Closing — only shown when done */}
-              {phase === 'done' && (
-                <div className="mt-8 text-right animate-fade-in">
-                  <p className="font-lato text-brown-800 dark:text-dark-muted text-sm">{LOVE_LETTER.closing}</p>
+              <div className="mt-8 text-right">
+                  <BlurText
+                    text={LOVE_LETTER.closing}
+                    className="font-lato text-brown-800 dark:text-dark-muted text-base leading-8 font-bold"
+                    onAnimationComplete={handleLetterComplete}
+                  />
                   <p className="font-dancing text-maroon-500 dark:text-dark-accent text-3xl font-bold mt-1">
                     {LOVE_LETTER.signature}
                   </p>
@@ -308,10 +229,10 @@ const LoveLetter = () => {
                     ))}
                   </div>
                 </div>
-              )}
             </div>
           </div>
         </div>
+        </LazyMotion>}
       </div>
     </section>
   );

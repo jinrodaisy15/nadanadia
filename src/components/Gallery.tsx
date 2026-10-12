@@ -1,13 +1,17 @@
-import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
+import { useState, useRef, useCallback, useEffect, memo, type RefCallback, type MouseEvent, type TouchEvent } from 'react';
 import { useMultiIntersection } from '../hooks/useIntersectionObserver';
 
 // ============================================================
 // ⬇️ TAMBAHKAN FOTO KAMU DI SINI
-// Upload ke: docs/photos/ lalu tambahkan nama file di sini
+// Upload ke: public/photos/ lalu tambahkan nama file di sini
 // ============================================================
 const BASE = import.meta.env.BASE_URL; // '/nadanadia/'
 
-const STATIC_PHOTOS = [
+type Photo = { src: string; caption: string };
+type PolaroidCardProps = { photo: Photo; index: number; onOpen: (photo: Photo) => void; revealRef: RefCallback<HTMLDivElement> };
+type LightboxProps = { photos: readonly Photo[]; currentIndex: number; onClose: () => void; onPrev: () => void; onNext: () => void };
+
+const STATIC_PHOTOS: readonly Photo[] = [
   { src: `${BASE}photos/bi1.jpg`, caption: 'First Time Date di Bank Indonesia 💑' },
   { src: `${BASE}photos/bi2.jpg`, caption: 'bank indonesia juga, tapi di cermin hehe' },
   { src: `${BASE}photos/bi3.jpg`, caption: 'cuteeee <3' },
@@ -21,26 +25,21 @@ const ROTATIONS = [-4, -2, 0, 2, 3, -3, 1, -1, 4, -1, 2, -2];
 // ─────────────────────────────────────────────────────────────
 // Skeleton placeholder
 // ─────────────────────────────────────────────────────────────
-const PhotoSkeleton = memo(() => (
-  <div className="masonry-item">
-    <div className="skeleton" style={{ height: `${Math.random() * 80 + 140}px`, borderRadius: '4px' }} />
-  </div>
-));
-PhotoSkeleton.displayName = 'PhotoSkeleton';
+
 
 // ─────────────────────────────────────────────────────────────
 // Single polaroid card with 3D tilt
 // ─────────────────────────────────────────────────────────────
-const PolaroidCard = memo(({ photo, index, onOpen, revealRef }) => {
-  const cardRef = useRef(null);
+const PolaroidCard = memo(({ photo, index, onOpen, revealRef }: PolaroidCardProps) => {
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const rotation = ROTATIONS[index % ROTATIONS.length];
+  const rotation = ROTATIONS[index % ROTATIONS.length] ?? 0;
 
   // 3D tilt on desktop
-  const handleMouseMove = useCallback((e) => {
+  const handleMouseMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current;
-    if (!el || window.matchMedia('(hover: none)').matches) return;
+    if (!el || window.matchMedia?.('(hover: none), (prefers-reduced-motion: reduce)').matches) return;
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -78,7 +77,9 @@ const PolaroidCard = memo(({ photo, index, onOpen, revealRef }) => {
         role="button"
         tabIndex={0}
         aria-label={`Buka foto: ${photo.caption || 'foto kenangan'}`}
-        onKeyDown={(e) => e.key === 'Enter' && onOpen(photo)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(photo); }
+        }}
       >
         {/* Skeleton shown while loading */}
         {!loaded && !failed && (
@@ -121,32 +122,47 @@ PolaroidCard.displayName = 'PolaroidCard';
 // ─────────────────────────────────────────────────────────────
 // Fullscreen lightbox with swipe gesture
 // ─────────────────────────────────────────────────────────────
-const Lightbox = memo(({ photos, currentIndex, onClose, onPrev, onNext }) => {
+const Lightbox = memo(({ photos, currentIndex, onClose, onPrev, onNext }: LightboxProps) => {
   const photo = photos[currentIndex];
-  const touchStartX = useRef(null);
+  const touchStartX = useRef<number | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   // Keyboard navigation
   useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowLeft') onPrev();
-      if (e.key === 'ArrowRight') onNext();
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    closeRef.current?.focus();
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); onPrev(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); onNext(); }
+      if (e.key === 'Tab') {
+        const buttons = dialogRef.current?.querySelectorAll<HTMLButtonElement>('button');
+        const first = buttons?.[0];
+        const last = buttons?.[buttons.length - 1];
+        if (!dialogRef.current?.contains(document.activeElement)) { e.preventDefault(); first?.focus(); }
+        else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
     };
     window.addEventListener('keydown', handler);
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
     return () => {
       window.removeEventListener('keydown', handler);
-      document.body.style.overflow = '';
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
     };
   }, [onClose, onPrev, onNext]);
 
   // Swipe gesture
-  const onTouchStart = useCallback((e) => {
-    touchStartX.current = e.touches[0].clientX;
+  const onTouchStart = useCallback((e: TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
   }, []);
-  const onTouchEnd = useCallback((e) => {
-    if (touchStartX.current === null) return;
+  const onTouchEnd = useCallback((e: TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null || !e.changedTouches[0]) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 50) {
       if (dx < 0) onNext();
@@ -159,7 +175,8 @@ const Lightbox = memo(({ photos, currentIndex, onClose, onPrev, onNext }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4 animate-fade-in"
+      ref={dialogRef}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-90 p-4 animate-fade-in"
       onClick={onClose}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
@@ -184,12 +201,15 @@ const Lightbox = memo(({ photos, currentIndex, onClose, onPrev, onNext }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="polaroid dark:bg-amber-50" style={{ transform: 'none' }}>
-          <img
+          {failedSrc === photo.src ? (
+            <div className="flex h-48 items-center justify-center text-maroon-500" role="status">Foto tidak dapat dimuat</div>
+          ) : <img
             src={photo.src}
             alt={photo.caption || 'Kenangan bersama'}
             className="w-full rounded-sm object-contain"
             style={{ maxHeight: '75vh' }}
-          />
+            onError={() => setFailedSrc(photo.src)}
+          />}
           {photo.caption && (
             <p className="mt-3 text-center font-dancing text-maroon-500 text-lg">
               {photo.caption}
@@ -199,6 +219,7 @@ const Lightbox = memo(({ photos, currentIndex, onClose, onPrev, onNext }) => {
 
         {/* Close button */}
         <button
+          ref={closeRef}
           onClick={onClose}
           className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-maroon-500 hover:bg-maroon-600 text-white flex items-center justify-center shadow-romantic transition-colors"
           aria-label="Tutup lightbox"
@@ -231,8 +252,8 @@ Lightbox.displayName = 'Lightbox';
 // Main Gallery Section
 // ─────────────────────────────────────────────────────────────
 const Gallery = () => {
-  const [lightboxIndex, setLightboxIndex] = useState(null);
-  const headerRef = useRef(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const headerRef = useRef<HTMLDivElement | null>(null);
   const { setRef } = useMultiIntersection({ staggerMs: 80, threshold: 0.08 });
 
   // Header reveal
@@ -240,14 +261,14 @@ const Gallery = () => {
     const el = headerRef.current;
     if (!el || !('IntersectionObserver' in window)) { el?.classList.add('visible'); return; }
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
+      ([e]) => { if (e?.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
       { threshold: 0.2 }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
-  const openLightbox = useCallback((photo) => {
+  const openLightbox = useCallback((photo: Photo) => {
     const idx = STATIC_PHOTOS.indexOf(photo);
     if (idx !== -1) setLightboxIndex(idx);
   }, []);
@@ -255,9 +276,9 @@ const Gallery = () => {
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
 
   const goPrev = useCallback(() =>
-    setLightboxIndex(i => Math.max(0, i - 1)), []);
+    setLightboxIndex(i => i === null ? null : Math.max(0, i - 1)), []);
   const goNext = useCallback(() =>
-    setLightboxIndex(i => Math.min(STATIC_PHOTOS.length - 1, i + 1)), []);
+    setLightboxIndex(i => i === null || STATIC_PHOTOS.length === 0 ? null : Math.min(STATIC_PHOTOS.length - 1, i + 1)), []);
 
   return (
     <section id="gallery" className="py-24 px-4 bg-cream-200 dark:bg-dark-surface">

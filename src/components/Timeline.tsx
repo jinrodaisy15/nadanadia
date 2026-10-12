@@ -1,10 +1,13 @@
-import React, { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo } from 'react';
 
 // ============================================================
 // EDIT TIMELINE DI SINI
 // description bisa berupa string biasa atau array string (untuk multi-paragraf)
 // ============================================================
-const TIMELINE_ITEMS = [
+type TimelineEntry = { date: string; icon: string; title: string; description: string | readonly string[] };
+type TimelineItemProps = { item: TimelineEntry; index: number; isLeft: boolean };
+
+const TIMELINE_ITEMS: readonly TimelineEntry[] = [
   {
     date: 'Desember 2025',
     icon: '🎄',
@@ -64,8 +67,8 @@ const TIMELINE_ITEMS = [
 // ─────────────────────────────────────────────────────────────
 // TimelineItem — slide dari kiri (genap) atau kanan (ganjil)
 // ─────────────────────────────────────────────────────────────
-const TimelineItem = memo(({ item, index, isLeft }) => {
-  const ref = useRef(null);
+const TimelineItem = memo(({ item, index, isLeft }: TimelineItemProps) => {
+  const ref = useRef<HTMLDivElement | null>(null);
   const revealClass = isLeft ? 'reveal-left' : 'reveal-right';
 
   useEffect(() => {
@@ -77,7 +80,7 @@ const TimelineItem = memo(({ item, index, isLeft }) => {
     }
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           el.classList.add('visible');
           observer.disconnect();
         }
@@ -89,7 +92,7 @@ const TimelineItem = memo(({ item, index, isLeft }) => {
   }, []);
 
   // Support both string and array of paragraphs
-  const paragraphs = Array.isArray(item.description)
+  const paragraphs = typeof item.description !== 'string'
     ? item.description
     : [item.description];
 
@@ -152,7 +155,7 @@ TimelineItem.displayName = 'TimelineItem';
 // Section header
 // ─────────────────────────────────────────────────────────────
 const SectionHeader = memo(() => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el || !('IntersectionObserver' in window)) {
@@ -160,7 +163,7 @@ const SectionHeader = memo(() => {
       return;
     }
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
+      ([e]) => { if (e?.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
       { threshold: 0.2 }
     );
     obs.observe(el);
@@ -183,7 +186,7 @@ SectionHeader.displayName = 'SectionHeader';
 // Main Timeline Section
 // ─────────────────────────────────────────────────────────────
 const Timeline = () => (
-  <section id="timeline" className="py-24 px-4 relative">
+  <section id="timeline" className="py-24 px-4 relative overflow-x-clip">
     {/* Background */}
     <div className="absolute inset-0 bg-gradient-to-b from-cream-200 to-cream-100 dark:from-dark-surface dark:to-dark-bg opacity-50 pointer-events-none" />
 
@@ -199,7 +202,7 @@ const Timeline = () => (
         <div>
           {TIMELINE_ITEMS.map((item, index) => (
             <TimelineItem
-              key={index}
+              key={item.title}
               item={item}
               index={index}
               isLeft={index % 2 === 0}

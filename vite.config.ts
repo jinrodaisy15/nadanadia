@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { serviceWorker } from './build/serviceWorker'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), serviceWorker()],
   // Base path bisa dioverride lewat env BASE_PATH (mis. GitHub Pages: /<nama-repo>/).
   // Vercel -> '/', selain itu default '/nadanadia/'.
   base:

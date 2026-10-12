@@ -1,11 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
+import { useState, useEffect, memo, type RefObject } from 'react';
+import { useAudioPlayer } from '../hooks/useAudioPlayer';
+import type { Track } from '../types/music';
 
 // ============================================================
 // ⬇️ DAFTAR LAGU — Upload file ke public/music/ lalu daftarkan di sini
 // ============================================================
 const BASE = import.meta.env.BASE_URL;
 
-const PLAYLIST = [
+const PLAYLIST: readonly Track[] = [
   { title: 'Tapi Diterima',       artist: 'Nadin Amizah', src: `${BASE}music/tapi-diterima.mp3` },
   { title: 'Semua Aku Dirayakan', artist: 'Nadin Amizah', src: `${BASE}music/semua-aku-dirayakan.mp3` },
   { title: 'Kekal',               artist: 'Nadin Amizah', src: `${BASE}music/kekal.mp3` },
@@ -14,7 +16,7 @@ const PLAYLIST = [
 // ─────────────────────────────────────────────────────────────
 // Equalizer bars — pure CSS animation, no JS loop
 // ─────────────────────────────────────────────────────────────
-const EqBars = memo(({ playing }) => (
+const EqBars = memo(({ playing }: { playing: boolean }) => (
   <div className="flex items-end gap-0.5 h-4 flex-shrink-0" aria-hidden="true">
     {[0, 1, 2].map(i => (
       <div
@@ -32,252 +34,68 @@ const EqBars = memo(({ playing }) => (
 EqBars.displayName = 'EqBars';
 
 // ─────────────────────────────────────────────────────────────
-// Progress bar — reads from audio directly via RAF, NO setState
-// ─────────────────────────────────────────────────────────────
-const ProgressBar = memo(({ audioRef, onSeek }) => {
-  const barRef = useRef(null);
-  const rafRef = useRef(null);
-
-  useEffect(() => {
-    const bar = barRef.current;
-    const fill = bar?.querySelector('[data-fill]');
-    if (!bar || !fill) return;
-
-    const tick = () => {
-      const audio = audioRef.current;
-      if (audio && audio.duration > 0) {
-        const pct = (audio.currentTime / audio.duration) * 100;
-        fill.style.width = `${pct}%`;
-        bar.setAttribute('aria-valuenow', String(Math.round(pct)));
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div
-      ref={barRef}
-      className="relative h-2 bg-maroon-400 bg-opacity-40 rounded-full cursor-pointer active:scale-y-150 transition-transform"
-      onClick={onSeek}
-      role="slider"
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-label="Progress lagu"
-    >
-      <div
-        data-fill
-        className="absolute top-0 left-0 h-full bg-cream-200 rounded-full"
-        style={{ width: '0%' }}
-      />
-    </div>
-  );
-});
-ProgressBar.displayName = 'ProgressBar';
-
-// ─────────────────────────────────────────────────────────────
-// Time display — reads from audio directly via RAF
-// ─────────────────────────────────────────────────────────────
-const TimeDisplay = memo(({ audioRef }) => {
-  const currentRef = useRef(null);
-  const totalRef = useRef(null);
-  const rafRef = useRef(null);
-
-  const fmt = (s) => {
-    if (!s || isNaN(s)) return '0:00';
-    return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
-  };
-
-  useEffect(() => {
-    const tick = () => {
-      const audio = audioRef.current;
-      if (audio) {
-        if (currentRef.current) currentRef.current.textContent = fmt(audio.currentTime);
-        if (totalRef.current)   totalRef.current.textContent   = fmt(audio.duration);
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div className="flex justify-between text-cream-300 text-xs font-lato opacity-50 tabular-nums">
-      <span ref={currentRef}>0:00</span>
-      <span ref={totalRef}>0:00</span>
-    </div>
-  );
-});
-TimeDisplay.displayName = 'TimeDisplay';
-
-// ─────────────────────────────────────────────────────────────
-// Shuffle helper
-// ─────────────────────────────────────────────────────────────
-const shuffleArray = (arr) => {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
+// Audio progress uses media events, so no RAF loops run while paused.
+const formatTime = (seconds: number) => {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+  return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 };
 
-// ─────────────────────────────────────────────────────────────
-// MusicPlayer
-// ─────────────────────────────────────────────────────────────
-const MusicPlayer = () => {
-  const audioRef = useRef(null);
+type AudioProgressProps = {
+  audioRef: RefObject<HTMLAudioElement | null>;
+  seek: (seconds: number) => void;
+};
 
-  const [trackIndex, setTrackIndex] = useState(0);
-  const [isPlaying,  setIsPlaying]  = useState(false);
-  const [volume,     setVolume]     = useState(0.8);
-  const [minimized,  setMinimized]  = useState(true);
-  const [hasError,   setHasError]   = useState(false);
-  const [showList,   setShowList]   = useState(false);
-  const [repeat,     setRepeat]     = useState('none');
-  const [shuffle,    setShuffle]    = useState(false);
-  const [shuffleOrder, setShuffleOrder] = useState(() => PLAYLIST.map((_, i) => i));
-
-  const currentTrack = useMemo(() => PLAYLIST[trackIndex] || PLAYLIST[0], [trackIndex]);
-
-  // Load track on index change
+const AudioProgress = memo(function AudioProgress({ audioRef, seek }: AudioProgressProps) {
+  const [time, setTime] = useState({ current: 0, duration: 0 });
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    setHasError(false);
-    audio.src = currentTrack.src;
-    audio.load();
-    if (isPlaying) audio.play().catch(() => setHasError(true));
-  }, [trackIndex]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Volume sync
-  useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = volume;
-  }, [volume]);
-
-  // Minimal event listeners — only ended & error (no timeupdate!)
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const onError = () => setHasError(true);
-    const onEnded = () => handleTrackEnd();
-    audio.addEventListener('error', onError);
-    audio.addEventListener('ended', onEnded);
-    return () => {
-      audio.removeEventListener('error', onError);
-      audio.removeEventListener('ended', onEnded);
-    };
-  }, [repeat, shuffle, shuffleOrder, trackIndex]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleTrackEnd = useCallback(() => {
-    if (repeat === 'one') { audioRef.current?.play().catch(() => {}); return; }
-    if (shuffle) {
-      const curPos = shuffleOrder.indexOf(trackIndex);
-      const nextPos = (curPos + 1) % shuffleOrder.length;
-      if (nextPos === 0 && repeat === 'none') { setIsPlaying(false); return; }
-      setTrackIndex(shuffleOrder[nextPos]);
-    } else {
-      const next = trackIndex + 1;
-      if (next >= PLAYLIST.length) {
-        if (repeat === 'all') setTrackIndex(0);
-        else setIsPlaying(false);
-      } else {
-        setTrackIndex(next);
-      }
-    }
-  }, [repeat, shuffle, shuffleOrder, trackIndex]);
-
-  const togglePlay = useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      try {
-        await audio.play();
-        setIsPlaying(true);
-        setHasError(false);
-      } catch {
-        setHasError(true);
-      }
-    }
-  }, [isPlaying]);
-
-  const goTo = useCallback((idx) => {
-    setTrackIndex(idx);
-    setIsPlaying(true);
-    setShowList(false);
-  }, []);
-
-  // Putar ulang lagu saat ini dari awal; jika sudah selesai (ended), langsung play lagi
-  const restartCurrent = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = 0;
-    if (audio.ended) {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
-    }
-  }, []);
-
-  const goPrev = useCallback(() => {
-    const audio = audioRef.current;
-    if (audio && (audio.currentTime > 3 || audio.ended)) { restartCurrent(); return; }
-    if (shuffle) {
-      const curPos = shuffleOrder.indexOf(trackIndex);
-      setTrackIndex(shuffleOrder[(curPos - 1 + shuffleOrder.length) % shuffleOrder.length]);
-    } else if (trackIndex === 0) {
-      // Di lagu pertama — restart lagu, bukan no-op
-      restartCurrent();
-    } else {
-      setTrackIndex(trackIndex - 1);
-    }
-  }, [shuffle, shuffleOrder, trackIndex, restartCurrent]);
-
-  const goNext = useCallback(() => {
-    if (shuffle) {
-      const curPos = shuffleOrder.indexOf(trackIndex);
-      setTrackIndex(shuffleOrder[(curPos + 1) % shuffleOrder.length]);
-    } else if (trackIndex >= PLAYLIST.length - 1) {
-      if (repeat === 'all') {
-        setTrackIndex(0);
-      } else {
-        // Lagu terakhir tanpa repeat — putar ulang lagu ini dari awal
-        restartCurrent();
-      }
-    } else {
-      setTrackIndex(trackIndex + 1);
-    }
-  }, [shuffle, shuffleOrder, trackIndex, repeat, restartCurrent]);
-
-  const toggleRepeat = useCallback(() => {
-    setRepeat(r => r === 'none' ? 'all' : r === 'all' ? 'one' : 'none');
-  }, []);
-
-  const toggleShuffle = useCallback(() => {
-    setShuffle(s => {
-      if (!s) setShuffleOrder(shuffleArray(PLAYLIST.map((_, i) => i)));
-      return !s;
+    const sync = () => setTime({
+      current: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
+      duration: Number.isFinite(audio.duration) ? audio.duration : 0,
     });
-  }, []);
+    const events = ['timeupdate', 'durationchange', 'loadedmetadata', 'emptied', 'seeked'] as const;
+    events.forEach(event => audio.addEventListener(event, sync));
+    sync();
+    return () => events.forEach(event => audio.removeEventListener(event, sync));
+  }, [audioRef]);
+  const percent = time.duration > 0 ? Math.max(0, Math.min(100, time.current / time.duration * 100)) : 0;
+  return <>
+    <div
+      className="relative h-2 bg-maroon-400 bg-opacity-40 rounded-full cursor-pointer active:scale-y-150 transition-transform"
+      role="slider" tabIndex={0} aria-label="Progress lagu"
+      aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(percent)}
+      aria-valuetext={`${formatTime(time.current)} / ${formatTime(time.duration)}`}
+      onClick={event => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        if (rect.width > 0) seek((event.clientX - rect.left) / rect.width * time.duration);
+      }}
+      onKeyDown={event => {
+        const target = event.key === 'ArrowRight' ? time.current + 5
+          : event.key === 'ArrowLeft' ? time.current - 5
+          : event.key === 'Home' ? 0 : event.key === 'End' ? time.duration : undefined;
+        if (target !== undefined) { event.preventDefault(); seek(target); }
+      }}
+    >
+      <div className="absolute top-0 left-0 h-full bg-cream-200 rounded-full" style={{ width: `${percent}%` }} />
+    </div>
+    <div className="flex justify-between text-cream-300 text-xs font-lato opacity-50 tabular-nums">
+      <span>{formatTime(time.current)}</span><span>{formatTime(time.duration)}</span>
+    </div>
+  </>;
+});
 
-  const handleSeek = useCallback((e) => {
-    const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    audio.currentTime = ratio * audio.duration;
-  }, []);
-
-  const handleVolume = useCallback((e) => {
-    setVolume(parseFloat(e.target.value));
-  }, []);
-
+const MusicPlayer = () => {
+  const {
+    audioRef, currentTrack, trackIndex, isPlaying, hasError, volume, setVolume,
+    repeat, shuffle, togglePlay, goTo, goPrev, goNext, toggleRepeat, toggleShuffle, seek,
+  } = useAudioPlayer(PLAYLIST);
+  const [minimized, setMinimized] = useState(true);
+  const [showList, setShowList] = useState(false);
   const repeatIcon = repeat === 'one' ? '🔂' : '🔁';
   const repeatLabel = repeat === 'none' ? 'Repeat off' : repeat === 'all' ? 'Repeat all' : 'Repeat one';
 
+  if (!currentTrack) return null;
   return (
     <>
       {/* Hidden audio element */}
@@ -328,7 +146,7 @@ const MusicPlayer = () => {
                     {hasError ? 'Tidak ada musik' : currentTrack.title}
                   </p>
                   <p className="font-lato text-cream-300 text-xs opacity-50 truncate">
-                    {hasError ? 'File tidak ditemukan' : currentTrack.artist}
+                    {hasError ? 'Coba putar kembali' : currentTrack.artist}
                   </p>
                 </div>
               </div>
@@ -354,8 +172,8 @@ const MusicPlayer = () => {
               <div className="bg-maroon-600 dark:bg-dark-card rounded-xl overflow-hidden max-h-36 overflow-y-auto">
                 {PLAYLIST.map((track, i) => (
                   <button
-                    key={i}
-                    onClick={() => goTo(i)}
+                    key={track.src}
+                    onClick={() => { goTo(i); setShowList(false); }}
                     className={`w-full text-left px-3 py-2.5 text-xs font-lato transition-colors
                       ${i === trackIndex
                         ? 'bg-maroon-500 dark:bg-dark-border text-cream-100'
@@ -369,11 +187,8 @@ const MusicPlayer = () => {
               </div>
             )}
 
-            {/* Progress bar (DOM-only, no React state) */}
-            {!hasError && <ProgressBar audioRef={audioRef} onSeek={handleSeek} />}
-
-            {/* Time (DOM-only, no React state) */}
-            {!hasError && <TimeDisplay audioRef={audioRef} />}
+            {/* Progress and time update from native media events. */}
+            {!hasError && <AudioProgress audioRef={audioRef} seek={seek} />}
 
             {/* Controls */}
             <div className="flex items-center justify-center gap-3">
@@ -430,7 +245,7 @@ const MusicPlayer = () => {
                 max="1"
                 step="0.05"
                 value={volume}
-                onChange={handleVolume}
+                onChange={event => setVolume(event.currentTarget.valueAsNumber)}
                 className="flex-1 h-2 accent-cream-200 cursor-pointer"
                 aria-label="Volume"
               />
@@ -440,7 +255,7 @@ const MusicPlayer = () => {
             {/* Error hint */}
             {hasError && (
               <p className="text-center text-cream-300 text-xs opacity-60 font-lato">
-                🎵 File musik tidak ditemukan
+                🎵 Musik belum bisa diputar. Coba lagi atau pilih lagu lain.
               </p>
             )}
           </div>
